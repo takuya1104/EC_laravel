@@ -8,6 +8,7 @@ class ItemController extends Controller
 {
 	public function index() {
 		$var = "Hello Laravel";
+
 		return view('item/index',compact('var'));
 	}
 }
