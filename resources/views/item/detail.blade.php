@@ -2,12 +2,11 @@
 <html lang ="ja">
 <html>
 <body>
-<table>
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>
 <th>在庫</th>
-{{-- コメント--}}
+<table>
 		<tr>
 			<td>{{ $item->item_name }}</a></td>
 			<td>{{ $item->description }}</td>
