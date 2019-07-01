@@ -78,4 +78,9 @@ class ItemController extends Controller
 		$item->save();
 		return redirect()->to('/');
 	}
+
+	public function logout(Request $request) {
+		Auth::logout();
+		return redirect()->to('/');
+	}
 }

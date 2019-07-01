@@ -14,7 +14,8 @@ td,th{
 </style>
 <body>
 @if(Auth::guard('admin')->check())
-<a href="{{ route('item.add') }}">商品追加</a>
+<a href="{{ route('item.add') }}">商品追加</a><br>
+<a href="{{ route('item_admin.logout') }}">ログアウト</a>
 @endif
 <table>
 <th>商品名</th>
