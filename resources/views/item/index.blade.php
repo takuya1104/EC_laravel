@@ -1,7 +1,21 @@
 <!DOCTYPE html>
 <html lang ="ja">
 <html>
+<style>
+table{
+  border-collapse:collapse;
+  margin:0 auto;
+}
+
+td,th{
+  border-top:1px solid #666;
+  padding:10px;
+}
+</style>
 <body>
+@if(Auth::guard('admin')->check())
+<a href="{{ route('item.add') }}">商品追加</a>
+@endif
 <table>
 <th>商品名</th>
 <th>商品説明</th>

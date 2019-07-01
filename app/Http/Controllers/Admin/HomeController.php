@@ -1,9 +1,11 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
+//use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Item;
+use App\Admin;
 
 class HomeController extends Controller
 {
@@ -24,6 +26,9 @@ class HomeController extends Controller
 	 */
 	public function index()
 	{
-		return view('admin.home');
+		$items = Item::all();
+		$admin_id = Admin::first()->id;
+
+		return view('admin/home', compact('items', 'admin_id'));
 	}
 }
