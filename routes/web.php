@@ -28,21 +28,25 @@ Route::group(['prefix' => 'admin'], function() {
 
 //adminログイン後
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {
-	Route::get('/home', function () { return redirect('/'); });
+	Route::get('/home', function () { return redirect('/admin/item'); });
 	Route::post('logout', 'Admin\LoginController@logout')->name('admin.logout');
 });
 //Route::post('/admin/logout', 'Admin\LoginController@logout')->name('item_admin.logout');
 Route::group(['prefix' => 'admin/item', 'middleware' => 'auth:admin'], function() {
+	//商品一覧
+	Route::get('/', 'AdminItemController@index');
+	//商品詳細画面
+	Route::get('detail/{id}', 'AdminItemController@detail')->name('admin_item.detail');
 	//商品編集画面
-	Route::get('edit/{id}', 'AdminItemController@edit')->name('item.edit');
+	Route::get('edit/{id}', 'AdminItemController@edit')->name('admin_item.edit');
 	//商品編集確認画面
-	Route::patch('edit/{id}', 'AdminItemController@editConfirm')->name('item.confirm');
+	Route::patch('edit_confirm/{id}', 'AdminItemController@editConfirm')->name('admin_item.confirm');
 	//商品編集登録
-	Route::post('edit/{id}', 'AdminItemController@editRegist')->name('item.regist');
+	Route::post('edit/{id}', 'AdminItemController@editRegist')->name('admin_item.regist');
 	//商品新規追加
-	Route::get('add', 'AdminItemController@add')->name('item.add');
+	Route::get('add', 'AdminItemController@add')->name('admin_item.add');
 	//商品新規追加確認
-	Route::post('add', 'AdminItemController@addConfirm')->name('item.add_confirm');
+	Route::post('add', 'AdminItemController@addConfirm')->name('admin_item.add_confirm');
 	//ログアウト処理
-	Route::get('logout', 'AdminItemController@logout')->name('item_admin.logout');
+	Route::get('logout', 'AdminItemController@logout')->name('admin_item.logout');
 });

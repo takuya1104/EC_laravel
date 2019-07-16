@@ -11,8 +11,7 @@ class ItemController extends Controller
 {
 
 	public function index() {
-		$items = Item::all();
-		$Admin_id = Admin::all();
+		$items = Item::simplePaginate(10);
 		return view('item/index', compact('items'));
 	}
 
