@@ -26,7 +26,6 @@ class AdminItemController extends Controller
 	}
 
 	public function editConfirm(Request $request, $id) {
-		$item_id = $request->id;
 		$item_name = $request->item_name;
 		$item_description = $request->item_description;
 		$item_stock = $request->item_stock;
@@ -40,8 +39,9 @@ class AdminItemController extends Controller
 		$request->session()->put('description', $item_description);
 		$request->session()->put('stock', $item_stock);
 
-		return view('admin.item_edit_confirm', compact('item_name', 'item_description', 'item_stock', 'item_id'));
+		return view('admin.item_edit_confirm', compact('item_name', 'item_description', 'item_stock', 'id'));
 	}
+
 	public function editRegist(Request $request, $id) {
 		$item = Item::findOrFail($id);
 
@@ -54,6 +54,10 @@ class AdminItemController extends Controller
 		$item->stock = $stock;
 
 		$item->save();
+		$request->session()->forget('name');
+		$request->session()->forget('description');
+		$request->session()->forget('stock');
+		session()->flash('flash_message', '編集が完了しました');
 		return redirect()->to('admin/item');
 	}
 
@@ -74,6 +78,7 @@ class AdminItemController extends Controller
 		$item->price = $request->item_price;
 		$item->stock = $request->item_stock;
 		$item->save();
+		session()->flash('flash_message', '商品を追加しました');
 		return redirect()->to('admin/item');
 	}
 
