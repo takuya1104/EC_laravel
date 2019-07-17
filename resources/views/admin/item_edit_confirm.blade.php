@@ -11,7 +11,7 @@
 </head>
 
 <h1>確認画面</h1>
-<form method="POST" action="{{ route('admin_item.regist',['id'=>$item_id]) }}">
+<form method="POST" action="{{ route('admin_item.regist',['id'=>$id]) }}">
 {{ csrf_field() }}
 <h3>商品名</h3>
 <p>{{ $item_name }}</p>
