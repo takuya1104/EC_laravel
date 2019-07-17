@@ -31,7 +31,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {
 	Route::get('/home', function () { return redirect('/admin/item'); });
 	Route::post('logout', 'Admin\LoginController@logout')->name('admin.logout');
 });
-//Route::post('/admin/logout', 'Admin\LoginController@logout')->name('item_admin.logout');
+//adminログイン後リダイレクト後
 Route::group(['prefix' => 'admin/item', 'middleware' => 'auth:admin'], function() {
 	//商品一覧
 	Route::get('/', 'AdminItemController@index');
