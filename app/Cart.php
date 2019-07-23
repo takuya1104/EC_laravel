@@ -5,12 +5,8 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Item extends Model
+class Cart extends Model
 {
 	use SoftDeletes;
 	protected $dates = ['deleted_at'];
-
-	public static function is_exist_id ($item_id) {
-		return  Item::where('id', $item_id)->exists();
-	}
 }

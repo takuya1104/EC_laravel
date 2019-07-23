@@ -16,8 +16,13 @@ class AdminItemController extends Controller
 	}
 
 	public function detail($id) {
-		$item = Item::find($id);
-		return view('admin.item_detail', compact('item'));
+		$check_id = Item::is_exist_id($id);
+		if ($check_id) {
+			$item = Item::find($id);
+			return view('admin.item_detail', compact('item'));
+		} else {
+			return redirect(url()->previous());
+		}
 	}
 
 	public function edit(Request $request, $id) {
