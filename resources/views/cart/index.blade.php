@@ -17,13 +17,15 @@
 {{ session('flash_message') }}
 </div>
 @endif
+<a href="{{ route('item.index') }}">ホームへ戻る</a>
 <!-- カートの中身確認 -->
-@if ($count === 0)
+@if (!$exist)
 <p><?php echo "カートが空です"; ?></p>
-@elseif ($count != 0)
+@elseif ($exist)
 <table>
 <th>商品名</th>
 <th>価格</th>
+<th>数量</th>
 <th>削除</th>
 @foreach ($items_in_carts as $item)
 <tr>
@@ -32,14 +34,15 @@
  {{ method_field('delete') }}
 <td>&nbsp;{{ $item->item_name }}</td>
 <td>&nbsp;{{ $item->price }}</td>
+<td>&nbsp;{{ $item->item_amount }}</td>
 <!-- 在庫確認 -->
 @if ($item->stock != 0)
 <input type="hidden" name="cart_id" value="{{ $item->id }}">
 <td><input type="submit" value="削除"></td>
+</form>
 @else
 <td>&nbsp;在庫がありません</td>
 @endif
-</form>
 </tr>
 @endforeach
 </table>

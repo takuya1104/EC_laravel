@@ -9,4 +9,6 @@ class Cart extends Model
 {
 	use SoftDeletes;
 	protected $dates = ['deleted_at'];
+
+	protected $fillable = ['item_id', 'customer_id', 'item_amount'];
 }

@@ -14,7 +14,7 @@
 
 Auth::routes();
 //商品一覧
-Route::get('/', 'ItemController@index');
+Route::get('/', 'ItemController@index')->name('item.index');
 //商品詳細
 Route::get('/item/detail/{id}', 'ItemController@detail')->name('item.detail');
 
@@ -31,11 +31,12 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	Route::get('cart/{id}', 'CartController@index')->name('cart.index');
 	//ログアウト処理
 	Route::get('logout', 'CartController@logout')->name('logout');
-	//カート追加
-	Route::get('add_item/{id}', 'CartController@addItem')->name('cart.add_item');
 	//削除処理
 	Route::delete('cart', 'CartController@delete')->name('cart.delete');
 });
+
+//カート追加
+Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
 
 //adminログイン後
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {

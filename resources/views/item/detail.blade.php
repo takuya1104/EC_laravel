@@ -10,7 +10,6 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<head>
 <div class="container">
 <style>
 table{
@@ -31,21 +30,28 @@ td,th{
 @endif
 <body>
 <table>
+<form class="form-horizontal" method="POST" action="{{ route('cart.add_item') }}">
+ {{ csrf_field() }}
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>
-<th>在庫</th>
 <th>追加</th>
 <tr>
 <td>{{ $item->item_name }}</a></td>
 <td>{{ $item->description }}</td>
 <td>{{ $item->price }}</td>
+<!-- 在庫確認 ログイン確認 -->
+@if (Auth::check())
 @if ($item->stock > 0)
-<td>在庫有り</td>
+<input type="hidden" name="hidden_item_id" value="{{ $item->id }}">
+<td><input type="submit" value="カートに追加"></td>
+</form>
 @else
 <td>在庫なし</td>
 @endif
-<td><a href="{{ route('cart.add_item', ['id' => $item->id]) }}">カートに追加</td>
+@else
+<td>ログインしてください</td>
+@endif
 </tr>
 </table>
 </body>
