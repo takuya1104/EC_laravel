@@ -22,16 +22,14 @@ td,th{
 	padding:10px;
 }
 </style>
+<body>
 <!-- フラッシュメッセージ -->
 @if (session('flash_message'))
 <div class="flash_message bg-success text-center py-3 my-0">
 {{ session('flash_message') }}
 </div>
 @endif
-<body>
 <table>
-<form class="form-horizontal" method="POST" action="{{ route('cart.add_item') }}">
- {{ csrf_field() }}
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>
@@ -40,9 +38,12 @@ td,th{
 <td>{{ $item->item_name }}</a></td>
 <td>{{ $item->description }}</td>
 <td>{{ $item->price }}</td>
-<!-- 在庫確認 ログイン確認 -->
+<!-- ログイン確認 -->
 @if (Auth::check())
+<!-- 在庫確認 -->
 @if ($item->stock > 0)
+<form class="form-horizontal" method="POST" action="{{ route('cart.add_item') }}">
+{{ csrf_field() }}
 <input type="hidden" name="hidden_item_id" value="{{ $item->id }}">
 <td><input type="submit" value="カートに追加"></td>
 </form>

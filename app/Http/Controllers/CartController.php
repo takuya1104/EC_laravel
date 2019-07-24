@@ -44,15 +44,17 @@ class CartController extends Controller
 				$request->session()->forget('detail_id');
 				return redirect(url()->previous());
 			}
+			$request->session()->forget('detail_id');
+
 			//アイテムの存在確認
 			$is_exist_id = Item::is_exist_id($item_id);
 			if ($is_exist_id) {
-				//レコードが存在していたら、INSERTあればitem_amountをUPDATEする処理をする
+				//レコードが存在していなければ、INSERT存在していればitem_amountをUPDATE
 				$in_cart = Cart::firstOrCreate([
 					'item_id' => $item_id,
 					'customer_id' => $customer_id
 				]);
-				//存在していなければtrue それ以外else
+				//存在していなければtrue それ以外false
 				if ($in_cart->wasRecentlyCreated) {
 					$in_cart->item_amount = 1;
 				} else {
@@ -75,6 +77,7 @@ class CartController extends Controller
 		$customer_id = Auth::id();
 		$is_exist_cart = Cart::where('id', $request->cart_id)->where('customer_id', $customer_id)->exists();
 
+		//カート内に存在するitemか確認
 		if ($is_exist_cart) {
 			Cart::where('id', $request->cart_id)->where('customer_id', $customer_id)->delete();
 			session()->flash('flash_message', '削除しました');

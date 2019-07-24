@@ -5,9 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-{{-- CSRF トークン --}}
 <meta name="csrf-token" content="{{ csrf_token() }}">
-{{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -29,14 +27,14 @@
 <th>削除</th>
 @foreach ($items_in_carts as $item)
 <tr>
-<form class="form-horizontal" method="POST" action="{{ route('cart.delete') }}">
- {{ csrf_field() }}
- {{ method_field('delete') }}
 <td>&nbsp;{{ $item->item_name }}</td>
 <td>&nbsp;{{ $item->price }}</td>
 <td>&nbsp;{{ $item->item_amount }}</td>
 <!-- 在庫確認 -->
 @if ($item->stock != 0)
+<form class="form-horizontal" method="POST" action="{{ route('cart.delete') }}">
+{{ csrf_field() }}
+{{ method_field('delete') }}
 <input type="hidden" name="cart_id" value="{{ $item->id }}">
 <td><input type="submit" value="削除"></td>
 </form>
