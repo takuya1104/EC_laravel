@@ -13,4 +13,8 @@ class Item extends Model
 	public static function is_exist_id ($item_id) {
 		return  Item::where('id', $item_id)->exists();
 	}
+
+	public static function is_exist_stock ($item_id) {
+		return  Item::where('id', $item_id)->where('stock', '>', 0)->exists();
+	}
 }

@@ -85,9 +85,8 @@ class CartController extends Controller
 		$is_exist_cart = Cart::in_cart($cart_id, $customer_id)->exists();
 		if ($is_exist_cart) {
 			$cart_in_array = Cart::in_cart($cart_id, $customer_id)->get()->toArray()[0];
-			//特定したカートの中のitem_id取得
+			//特定したカートの中のitem_id, item_amount取得
 			$in_cart_item_id = $cart_in_array['item_id'];
-			//特定したカートの中のitem_amount取得
 			$in_cart_item_amount = $cart_in_array['item_amount'];
 			//特定したカートを削除
 			Cart::in_cart($cart_id, $customer_id)->delete();
