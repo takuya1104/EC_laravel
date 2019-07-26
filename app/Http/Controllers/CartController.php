@@ -33,34 +33,38 @@ class CartController extends Controller
 	}
 
 	public function addItem(Request $request) {
+		//hiddenからの値とitemのidの照合
+		/*$session_id = $request->session()->get('detail_id');
+		dd($session_id);
+		if ($item_id != $session_id){
+			$request->session()->forget('detail_id');
+			return redirect(url()->previous());
+		}
+		$request->session()->forget('detail_id');*/
+		//dd($request->session());
+
 		//ログイン確認
 		if (Auth::check()) {
 			$customer_id = Auth::id();
 			$item_id = $request->hidden_item_id;
-			$session_id = $request->session()->get('detail_id');
 
-			//hiddenからの値とitemのidの照合
-			if ($item_id != $session_id){
-				$request->session()->forget('detail_id');
-				return redirect(url()->previous());
-			}
-			$request->session()->forget('detail_id');
-
-			//アイテムの存在確認
-			$is_exist_id = Item::is_exist_id($item_id);
-			if ($is_exist_id) {
-				//レコードが存在していなければ、INSERT存在していればitem_amountをUPDATE
+			//アイテムの存在確認 and 在庫確認
+			$is_exist_stock = Item::is_exist_stock($item_id);
+			if ($is_exist_stock) {
+				//レコードが存在していなければINSERT, 存在していればitem_amountをUPDATE
 				$in_cart = Cart::firstOrCreate([
 					'item_id' => $item_id,
 					'customer_id' => $customer_id
 				]);
-				//存在していなければtrue それ以外false
+				//存在していなければtrue
 				if ($in_cart->wasRecentlyCreated) {
 					$in_cart->item_amount = 1;
 				} else {
 					$in_cart->increment('item_amount');
 				}
 				$in_cart->save();
+				Item::where('id', $item_id)->decrement('stock');
+
 				session()->flash('flash_message', 'カートに追加しました');
 				return redirect()->route('cart.index', ['id' => $customer_id]);
 			} else {
@@ -74,12 +78,22 @@ class CartController extends Controller
 	}
 
 	public function delete(Request $request) {
+		$cart_id = $request->cart_id;
 		$customer_id = Auth::id();
-		$is_exist_cart = Cart::where('id', $request->cart_id)->where('customer_id', $customer_id)->exists();
 
 		//カート内に存在するitemか確認
+		$is_exist_cart = Cart::in_cart($cart_id, $customer_id)->exists();
 		if ($is_exist_cart) {
-			Cart::where('id', $request->cart_id)->where('customer_id', $customer_id)->delete();
+			$cart_in_array = Cart::in_cart($cart_id, $customer_id)->get()->toArray()[0];
+			//特定したカートの中のitem_id取得
+			$in_cart_item_id = $cart_in_array['item_id'];
+			//特定したカートの中のitem_amount取得
+			$in_cart_item_amount = $cart_in_array['item_amount'];
+			//特定したカートを削除
+			Cart::in_cart($cart_id, $customer_id)->delete();
+			//削除したカートの中のitem_amount分Itemテーブルに追加追加
+			Item::where('id', $in_cart_item_id)->increment('stock', $in_cart_item_amount);
+
 			session()->flash('flash_message', '削除しました');
 			return redirect()->route('cart.index', ['id' => $customer_id]);
 		} else {
