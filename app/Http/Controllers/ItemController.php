@@ -16,6 +16,7 @@ class ItemController extends Controller
 	}
 
 	public function detail($id) {
+		$id = decrypt($id);
 		$check_id = Item::is_exist_id($id);
 		if ($check_id) {
 			$item = Item::find($id);
