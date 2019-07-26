@@ -25,7 +25,7 @@
 <th>在庫</th>
 @foreach ($items as $item)
 <tr>
-<td><a href ="{{ route('item.detail', ['id' => encrypt($item->id)]) }}">{{ $item->item_name }}</a></td>
+<td><a href ="{{ route('item.detail', ['id' => $item->id]) }}">{{ $item->item_name }}</a></td>
 <td>&nbsp;{{ $item->description }}</td>
 <td>&nbsp;{{ $item->price }}</td>
 @if ($item->stock > 0)

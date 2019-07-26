@@ -33,20 +33,10 @@ class CartController extends Controller
 	}
 
 	public function addItem(Request $request) {
-		//hiddenからの値とitemのidの照合
-		/*$session_id = $request->session()->get('detail_id');
-		dd($session_id);
-		if ($item_id != $session_id){
-			$request->session()->forget('detail_id');
-			return redirect(url()->previous());
-		}
-		$request->session()->forget('detail_id');*/
-		//dd($request->session());
-
 		//ログイン確認
 		if (Auth::check()) {
 			$customer_id = Auth::id();
-			$item_id = decrypt($request->hidden_item_id);
+			$item_id = $request->hidden_item_id;
 
 			//アイテムの存在確認 and 在庫確認
 			$is_exist_stock = Item::is_exist_stock($item_id);
@@ -88,7 +78,6 @@ class CartController extends Controller
 			//特定したカートの中のitem_id, item_amount取得
 			$in_cart_item_id = $cart_in_array['item_id'];
 			$in_cart_item_amount = $cart_in_array['item_amount'];
-			//特定したカートを削除
 			Cart::in_cart($cart_id, $customer_id)->delete();
 			//削除したカートの中のitem_amount分Itemテーブルに追加追加
 			Item::where('id', $in_cart_item_id)->increment('stock', $in_cart_item_amount);
