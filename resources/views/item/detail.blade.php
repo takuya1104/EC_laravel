@@ -44,7 +44,7 @@ td,th{
 @if ($item->stock > 0)
 <form class="form-horizontal" method="POST" action="{{ route('cart.add_item') }}">
 {{ csrf_field() }}
-<input type="hidden" name="hidden_item_id" value="{{ $item->id }}">
+<input type="hidden" name="hidden_item_id" value="{{ encrypt($item->id) }}">
 <td><input type="submit" value="カートに追加"></td>
 </form>
 @else

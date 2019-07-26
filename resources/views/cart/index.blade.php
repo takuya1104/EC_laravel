@@ -31,16 +31,12 @@
 <td>&nbsp;{{ $item->price }}</td>
 <td>&nbsp;{{ $item->item_amount }}</td>
 <!-- 在庫確認 -->
-@if ($item->stock != 0)
 <form class="form-horizontal" method="POST" action="{{ route('cart.delete') }}">
 {{ csrf_field() }}
 {{ method_field('delete') }}
 <input type="hidden" name="cart_id" value="{{ $item->id }}">
 <td><input type="submit" value="削除"></td>
 </form>
-@else
-<td>&nbsp;在庫がありません</td>
-@endif
 </tr>
 @endforeach
 </table>

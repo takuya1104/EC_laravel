@@ -46,7 +46,7 @@ class CartController extends Controller
 		//ログイン確認
 		if (Auth::check()) {
 			$customer_id = Auth::id();
-			$item_id = $request->hidden_item_id;
+			$item_id = decrypt($request->hidden_item_id);
 
 			//アイテムの存在確認 and 在庫確認
 			$is_exist_stock = Item::is_exist_stock($item_id);
