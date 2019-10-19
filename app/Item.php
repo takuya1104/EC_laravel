@@ -17,4 +17,9 @@ class Item extends Model
 	public static function is_exist_stock ($item_id) {
 		return  Item::where('id', $item_id)->where('stock', '>', 0)->exists();
 	}
+
+	public function cart()
+	{
+		return $this->hasMany(Cart::class);
+	}
 }

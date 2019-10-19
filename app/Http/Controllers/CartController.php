@@ -20,15 +20,9 @@ class CartController extends Controller
 
 		$exist = Cart::where('customer_id', $id)->exists();
 		//カートの中身があるか確認
-		if ($exist) {
-			$items_in_carts = Item::
-				join('carts', 'items.id','=', 'carts.item_id')
-				->where('carts.customer_id', $id)
-				->whereNull('carts.deleted_at')
-				->where('carts.item_amount', '>',  0)
-				->orderBy('carts.id')
-				->get();
-		}
+		$items_in_carts = Cart::with('item')
+			->where('customer_id', $id)
+			->get();
 		return view('cart.index', compact('exist', 'items_in_carts'));
 	}
 
@@ -37,7 +31,6 @@ class CartController extends Controller
 		if (Auth::check()) {
 			$customer_id = Auth::id();
 			$item_id = $request->hidden_item_id;
-
 			//アイテムの存在確認 and 在庫確認
 			$is_exist_stock = Item::is_exist_stock($item_id);
 			if ($is_exist_stock) {
@@ -59,6 +52,7 @@ class CartController extends Controller
 				return redirect()->route('cart.index', ['id' => $customer_id]);
 			} else {
 				//渡ってきた値が存在しなかった場合リダイレクト
+				session()->flash('flash_message', '在庫がありません');
 				return redirect(url()->previous());
 			}
 		} else {
@@ -71,7 +65,6 @@ class CartController extends Controller
 		$cart_id = $request->cart_id;
 		$customer_id = Auth::id();
 
-		//カート内に存在するitemか確認
 		$is_exist_cart = Cart::in_cart($cart_id, $customer_id)->exists();
 		if ($is_exist_cart) {
 			$cart_in_array = Cart::in_cart($cart_id, $customer_id)->get()->toArray()[0];

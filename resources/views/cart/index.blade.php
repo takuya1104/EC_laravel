@@ -16,10 +16,11 @@
 </div>
 @endif
 <a href="{{ route('item.index') }}">ホームへ戻る</a>
+<a href="{{ route('address.confirm', ['id' => Auth::id()]) }}">住所選択画面</a>
 <!-- カートの中身確認 -->
-@if (!$exist)
+@if ($items_in_carts->isEmpty())
 <p><?php echo "カートが空です"; ?></p>
-@elseif ($exist)
+@else
 <table>
 <th>商品名</th>
 <th>価格</th>
@@ -27,8 +28,8 @@
 <th>削除</th>
 @foreach ($items_in_carts as $item)
 <tr>
-<td>&nbsp;{{ $item->item_name }}</td>
-<td>&nbsp;{{ $item->price }}</td>
+<td>&nbsp;{{ $item->item->item_name }}</td>
+<td>&nbsp;{{ $item->item->price }}</td>
 <td>&nbsp;{{ $item->item_amount }}</td>
 <!-- 在庫確認 -->
 <form class="form-horizontal" method="POST" action="{{ route('cart.delete') }}">

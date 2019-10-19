@@ -25,6 +25,7 @@ Route::group(['prefix' => 'admin'], function() {
 	Route::get('login', 'Admin\LoginController@showLoginForm')->name('admin.login');
 	Route::post('login', 'Admin\LoginController@login');
 });
+
 //ユーザログイン後
 Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	//カート一覧画面
@@ -35,6 +36,22 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	Route::delete('cart', 'CartController@delete')->name('cart.delete');
 });
 
+//住所追加編集削除
+Route::group(['prefix' => '/address', 'middleware' => 'auth'], function() {
+	Route::get('/{id}', 'AddressController@index')->name('address.index');
+	//住所確認画面
+	Route::get('confirm/{id}', 'AddressController@confirm')->name('address.confirm');
+	//住所削除画面
+	Route::delete('del_address/{id}', 'AddressController@del_address')->name('address.del_address');
+	//住所編集画面
+	Route::get('edit_address/{id}', 'AddressController@edit_address')->name('address.edit_address');
+});
+
+//住所追加編集削除
+Route::group(['prefix' => '/address', 'middleware' => ['web']], function () {
+	 //住所追加編集
+	  Route::post('/address/add', 'AddressController@add')->name('address.add');
+});
 //カート追加
 Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
 
