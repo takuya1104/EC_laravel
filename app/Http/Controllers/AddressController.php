@@ -30,18 +30,18 @@ class AddressController extends Controller
 		$prefectures = Prefecture::select('id', 'pref_name')->get();
 
 		return view('address.index', compact('prefectures'));
-
 	}
 
 	/*
 	 * 住所・電話番号を追加・編集
 	 */
 	public function add(CreateAddress $request) {
+
 		if (!Auth::check()) {
 			return redirect(url()->previous());
 		}
-		$address_class = new Address;
 
+		$address_class = new Address;
 		//POSTデータ取得
 		$customer_name = $request->customer_name;
 		$postal_code1 = $request->postal_code1;
@@ -68,14 +68,14 @@ class AddressController extends Controller
 		}
 
 		//DB登録用エレメント作成
-		$auth_id = Auth::id();
+		$user_id = Auth::id();
 		$postal_code = $postal_code1 . '-' . $postal_code2;
-		$prefecture = $pref_check[1];
+		$prefecture_id = $pref_check[0];
 		$city = $address;
 		$phone_number = $phone_number;
 
 		//hiddenでidが設定されていて、かつ住所登録が存在していない場合
-		if ($hidden_id !== NULL && $address_class->where('id', $hidden_id)->where('auth_id', $auth_id)->doesntExist()) {
+		if ($hidden_id !== NULL && $address_class->where('id', $hidden_id)->where('user_id', $user_id)->doesntExist()) {
 			session()->flash('flash_message', '選択されてた住所は存在していません');
 			return redirect(url()->previous());
 		}
@@ -83,16 +83,16 @@ class AddressController extends Controller
 		//idとユーザーIDが存在していればUPDATEなければ新規でINSERT
 		$address_save = Address::updateOrCreate([
 			'id' => $hidden_id,
-			'auth_id' => $auth_id
+			'user_id' => $user_id
 		], [
 			'customer_name' => $customer_name,
 			'postal_code' => $postal_code,
-			'prefecture' => $prefecture,
+			'prefecture_id' => $prefecture_id,
 			'city' => $city,
 			'phone_number' => $phone_number
 		]);
 		//データ送信後リダイレクト
-		return redirect()->route('address.confirm', ['id' => $auth_id]);
+		return redirect()->route('address.confirm', ['id' => $user_id]);
 	}
 
 	/*
@@ -104,7 +104,7 @@ class AddressController extends Controller
 			return redirect(url()->previous());
 		}
 		//ユーザーの登録ずみ住所取得
-		$registered_address = Address::where('auth_id', $id)->get();
+		$registered_address = Address::with('prefecture')->where('user_id', $id)->get();
 
 		return view('address.confirm', compact('registered_address'));
 	}
@@ -112,19 +112,23 @@ class AddressController extends Controller
 	/*
 	 * 住所・電話番号を削除
 	 */
-	public function del_address(Request $request, $id) {
-		$address_class = new Address;
-		$auth_id = Auth::id();
+	public function del_address(Request $request) {
+
 		if (!Auth::check()) {
 			return redirect(url()->previous());
 		}
+
+		$address_class = new Address;
+		$user_id = Auth::id();
+		$id = $request->del_hidden_id;
 		//ユーザーidとAddressテーブルのidが一致していて存在しているかどうか確認
-		if($address_class->where('id', $id)->where('auth_id', $auth_id)->exists()) {
+		if($address_class->where('id', $id)->where('user_id', $user_id)->exists()) {
 			$address_class->where('id', $id)->delete();
 			session()->flash('flash_message', '削除しました');
 		} else {
 			session()->flash('flash_message', '存在していない住所が選択されました');
 		}
+
 		return redirect(url()->previous());
 	}
 
@@ -137,23 +141,23 @@ class AddressController extends Controller
 			return redirect(url()->previous());
 		}
 
-		//GETで受けた登録情報IDが削除ずみかもしくは存在していない場合
 		$address_class = new Address();
-		if ($address_class->where('id', $id)->where('auth_id', Auth::id())->doesntExist()) {
+		//GETで受けた登録情報IDが削除ずみかもしくは存在していない場合
+		if ($address_class->where('id', $id)->where('user_id', Auth::id())->doesntExist()) {
 			session()->flash('flash_message', '選択されてた住所は削除されているか存在していません');
 			return redirect(url()->previous());
 		}
 
 		//編集したいユーザーの登録時情報を取得
-		$registered_address = Address::where('id', $id)->where('auth_id', Auth::id())->first();
+		$registered_address = Address::where('id', $id)->where('user_id', Auth::id())->first();
 		$customer_name = $registered_address->customer_name;
-		$prefecture = $registered_address->prefecture;
+		$prefecture_id = $registered_address->prefecture_id;
 		$city = $registered_address->city;
 		$postal_code = explode("-", $registered_address->postal_code);
 		$phone_number = $registered_address->phone_number;
 		$prefectures = Prefecture::select('id', 'pref_name')->get();
 
-		return view('address.edit_address', compact('customer_name', 'prefecture', 'city', 'postal_code', 'phone_number', 'id', 'prefectures'));
+		return view('address.edit_address', compact('customer_name', 'prefecture_id', 'city', 'postal_code', 'phone_number', 'id', 'prefectures'));
 	}
 
 }

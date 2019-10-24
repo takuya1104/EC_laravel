@@ -5,7 +5,6 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="csrf-token" content="{{ csrf_token() }}">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -33,19 +32,17 @@
 <tr>
 <td>&nbsp;{{ $address->customer_name }}</td>
 <td>&nbsp;{{ $address->postal_code}}</td>
-<td>&nbsp;{{ $address->prefecture}}</td>
+<td>&nbsp;{{ $address->prefecture->pref_name}}</td>
 <td>&nbsp;{{ $address->city}}</td>
 <td>&nbsp;{{ $address->phone_number }}</td>
-<form class="form-horizontal" method="POST" action="{{ route('address.del_address', ['id' => $address->id]) }}">
+<form class="form-horizontal" method="POST" action="{{ route('address.del_address') }}">
 {{ csrf_field() }}
 {{ method_field('delete') }}
+<input type="hidden" value="{{ $address->id }}" name="del_hidden_id">
 <td><input type="submit" value="削除"></td>
 </form>
-<form class="form-horizontal" method="GET" action="{{ route('address.edit_address', ['id' => $address->id]) }}">
-{{ csrf_field() }}
-<td><input type="submit" value="編集"></td>
-</form>
-<td><input type="checkbox" name="check_address[]" value="{{ $address->id }}"></td>
+<td><a href="{{ route('address.edit_address', ['id' => $address->id]) }}">編集</a>
+<td><input type="checkbox" name="check_address" value="{{ $address->id }}"></td>
 </tr>
 @endforeach
 </table>

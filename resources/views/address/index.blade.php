@@ -8,7 +8,6 @@
 
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-<script src="https://ajaxzip3.github.io/ajaxzip3.js"></script>
 </head>
 @if (session('flash_message'))
 <div class="flash_message bg-danger text-center py-3 my-0">
