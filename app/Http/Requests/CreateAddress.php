@@ -33,7 +33,7 @@ class CreateAddress extends FormRequest
 						return $fail('記号は使用できません');
 					}
 				}
-		],
+			],
 			'postal_code1' => 'required|numeric|digits:3',
 			'postal_code2' => 'required|numeric|digits:4',
 			'pref' => 'required|',
@@ -46,7 +46,7 @@ class CreateAddress extends FormRequest
 						return $fail('記号は半角ハイフンのみ使用できます');
 					}
 				}
-		],
+			],
 			'phone' => 'required|numeric|digits_between:8, 11',
 		];
 	}

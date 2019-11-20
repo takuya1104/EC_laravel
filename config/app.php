@@ -13,7 +13,7 @@ return [
 	|
 	 */
 
-	'name' => env('APP_NAME', 'Laravel'),
+	'name' => env('APP_NAME', '拓也_EC'),
 
 	/*
 	|--------------------------------------------------------------------------
@@ -177,7 +177,7 @@ return [
 			App\Providers\EventServiceProvider::class,
 			App\Providers\RouteServiceProvider::class,
 			App\Providers\ValidatorServiceProvider::class,
-			App\Providers\ValidationServiceProvider::class,
+			//App\Providers\ValidationServiceProvider::class,
 
 		],
 

@@ -30,7 +30,7 @@
 <select name="pref">
 @foreach ($prefectures as $pref)
 {{-- 選択されている都道府県をセレクト状態にする --}}
-<option value="{{ $pref->id  }} . {{ $pref->pref_name }}" <?php if ( $pref->pref_name == $prefecture ) { echo 'selected="true"'; } ?>>{{ $pref->pref_name }}</option>
+<option value="{{ $pref->id  }} . {{ $pref->pref_name }}" <?php if ( $pref->id == $prefecture_id ) { echo 'selected="true"'; } ?>>{{ $pref->pref_name }}</option>
 @endforeach
 </select>
 {{ $errors->first('pref') }}
@@ -41,7 +41,7 @@
 <input id="phone_number" name="phone" value="{{ $phone_number }}" ><br>
 {{ $errors->first('phone') }}
 <br>
-<input type="hidden" id="address_num" name="hidden_id" value="{{ $id }}">
+<input type="hidden" name="hidden_id" value="{{ $id }}">
 <button type="submit" class="btn btn-primary">
 変更
 </button>
