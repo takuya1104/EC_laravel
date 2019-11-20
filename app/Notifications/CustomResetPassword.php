@@ -44,23 +44,10 @@ class CustomResetPassword extends Notification
 	public function toMail($notifiable)
 	{
 		return (new MailMessage)
-			->from('takuya7.msb@gmail.com', config('app.name'))
+			->from('takuya7.msb@gmail.com', 'Takuya_ECsite')
 			->subject('パスワード再設定')
 			->line('下のボタンをクリックしてパスワードを再設定してください。')
 			->action('Reset Password', url(config('app.url').route('password.reset', $this->token, false)))
 			->line('もし心当たりがない場合は、本メッセージは破棄してください。');
-	}
-
-	/**
-	 * Get the array representation of the notification.
-	 *
-	 * @param  mixed  $notifiable
-	 * @return array
-	 */
-	public function toArray($notifiable)
-	{
-		return [
-			//
-		];
 	}
 }

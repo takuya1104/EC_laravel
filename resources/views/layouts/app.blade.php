@@ -53,6 +53,7 @@
 
                                 <ul class="dropdown-menu">
                                     <li>
+										<a href="{{ route('edit_user_account', ['id'=>Auth::id()]) }}">EditUserAccount</a>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
