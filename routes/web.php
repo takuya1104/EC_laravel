@@ -40,6 +40,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	Route::post('edit_user_account/receive_input', 'EditUserAccountController@receive_input')->name('edit_user_account.receive_input');
 });
 
+	Route::get('edit_user_account/receive_email/{encrypted_info}', 'EditUserAccountController@receive_email')->name('edit_user_account.receive_email');
 //住所追加編集削除
 Route::group(['prefix' => '/address', 'middleware' => 'auth'], function() {
 	Route::get('/{id}', 'AddressController@index')->name('address.index');
