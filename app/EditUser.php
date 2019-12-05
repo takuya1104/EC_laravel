@@ -10,5 +10,5 @@ class EditUser extends Model
 	protected $table = 'edit_users';
 	protected $primaryKey = 'user_id';
 	public $incrementing = false;
-	protected $fillable = ['user_id', 'name', 'new_password', 'using_password', 'email_address', 'hash'];
+	protected $fillable = ['user_id', 'name', 'new_password', 'using_password', 'email_address', 'token'];
 }

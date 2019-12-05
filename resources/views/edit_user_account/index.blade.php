@@ -17,20 +17,29 @@
 <form class="form-horizontal" method="POST" action="{{ route('edit_user_account.receive_input') }}">
 {{ csrf_field() }}
 <p>名前</p>
-<input id="" name="user_name" value="{{ old('user_name') }}"><br>
- {{ $errors->first('user_name') }}
-<p>新しいメールアドレス</p>
+<p><input id="" name="user_name" value="{{ old('user_name') }}"><br>
+{{ $errors->first('user_name') }}
+</p>
+<p>登録済みールアドレスか新しく登録するメールアドレス</p>
+<p>
 <input id="" name="user_email" value="{{ old('user_email') }}"><br>
- {{ $errors->first('user_email') }}
+{{ $errors->first('user_email') }}
+</p>
 <p>パスワード</p>
+<p>
 <input id="" name="new_password" value="{{ old('new_password') }}"><br>
- {{ $errors->first('new_password') }}
+{{ $errors->first('new_password') }}
+</p>
 <p>パスワード確認用</p>
+<p>
 <input id="" name="confirm_password" value="{{ old('confirm_password') }}"><br>
- {{ $errors->first('confirm_password') }}
+{{ $errors->first('confirm_password') }}
+</p>
 <p>現在のパスワード</p>
+<p>
 <input id="" name="using_password" value="{{ old('using_password') }}"><br>
- {{ $errors->first('using_password') }}
+{{ $errors->first('using_password') }}
+</p>
 <br>
 <button type="submit" class="btn btn-primary">
 変更

@@ -40,8 +40,9 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	Route::post('edit_user_account/receive_input', 'EditUserAccountController@receive_input')->name('edit_user_account.receive_input');
 });
 
-	Route::get('edit_user_account/receive_email/{encrypted_info}', 'EditUserAccountController@receive_email')->name('edit_user_account.receive_email');
+Route::get('edit_user_account/receive_email/{token}', 'EditUserAccountController@receive_email')->name('edit_user_account.receive_email');
 //住所追加編集削除
+
 Route::group(['prefix' => '/address', 'middleware' => 'auth'], function() {
 	Route::get('/{id}', 'AddressController@index')->name('address.index');
 	//住所確認画面
@@ -86,3 +87,11 @@ Route::group(['prefix' => 'admin/item', 'middleware' => 'auth:admin'], function(
 	//ログアウト処理
 	Route::get('logout', 'AdminItemController@logout')->name('admin_item.logout');
 });
+
+
+// ログインURL
+Route::get('auth/twitter', 'Auth\TwitterController@login');
+// コールバックURL
+Route::get('auth/twitter/callback', 'Auth\TwitterController@callback');
+// ログアウトURL
+Route::get('auth/twitter/logout', 'Auth\TwitterController@logout');

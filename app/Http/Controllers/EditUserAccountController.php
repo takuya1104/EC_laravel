@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EditEmailAddress;
-use App\Http\Requests\CreateAddress;
+use App\Http\Requests\EditUserInfo;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\URL;
 use App\Providers\Validator;
@@ -35,21 +35,11 @@ class EditUserAccountController extends Controller
 	 * 入力内容受け取り画面
 	 */
 
-	public function receive_input(Request $request) {
+	public function receive_input(EditUserInfo $request) {
 
 		if (!Auth::check()) {
 			return redirect(url()->previous());
 		}
-
-		//新規パスワードが8文字以上の文字列であり、確認用新規パスワードが新規パスワードと同じである事を確認
-		//現在登録済みユーザーが８文字以下の可能性があるのでusing_passwordには文字数のバリデーションはかけない
-		//パスワードのみNULL可能
-
-		$request->validate([
-			'new_password' => 'min:8|string|nullable',
-			'confirm_password' => 'min:8|string|nullable|same:new_password',
-			'using_password' => 'required|string|',
-		]);
 
 		//ハッシュ化されたパスと入力されたパスが同じか照合
 		if(!(Hash::check($request->using_password, Auth::user()->password))) {
@@ -58,41 +48,97 @@ class EditUserAccountController extends Controller
 		}
 
 		//ユーザー情報の変更がない場合、変更した文言のみ出力
-		$password = Hash::make($request->new_password);
+		$token = substr(base_convert(bin2hex(openssl_random_pseudo_bytes(100)),16,36),0,100);
 		$user_name = $request->user_name;
 		$email_address = $request->user_email;
-		$new_password = $request->new_password;
-		$using_password = $request->using_password;
-		$hash = Hash::make(Carbon::now());
+		$new_password = Hash::make($request->new_password);
+		$using_password = Hash::make($request->using_password);
 		//ログインユーザーのアドレスと入力されたアドレスが同じか照合
 		if (Auth::user()->email !== $email_address) {
-			$url = route('edit_user_account.receive_email', ['hash' => $hash]);
+			//メールアドレスの重複を確認
+			if (User::where('email', $email_address)->exists()) {
+				session()->flash('flash_message', '存在しているメールアドレスです');
+				return redirect(url()->previous());
+			}
+			$url = route('edit_user_account.receive_email', ['token' => $token]);
 			//新規のユーザーIDであれば挿入, それ以外は更新
 			EditUser::updateOrCreate([
 				'user_id' => Auth::id(),
-			], [
-				'name' => $user_name,
-				'using_password' => $using_password,
-				'new_password' => $new_password,
-				'email_address' => $email_address,
-				'hash' => $hash,
-			]);
-
+				], [
+					'name' => $user_name,
+					'using_password' => $using_password,
+					'new_password' => $new_password,
+					'email_address' => $email_address,
+					'token' => $token,
+				]);
+			//メール送信
 			Mail::to($email_address)->send(new EditEmailAddress($url));
 			session()->flash('flash_message', '確認用メールを送信しました');
 			return redirect(url()->previous());
 		} else {
-			//ログインユーザーのアドレスと入力されたアドレスが同じ場合
-			if ($new_password === NULL && $confirm_password === NULL) {
+			//名前新規パスの入力がない場合
+			if ($request->new_password == NULL && $user_name == NULL) {
+				session()->flash('flash_message', '変更内容がありません');
+				return redirect(url()->previous());
 			}
+			$user_info = User::find(Auth::id());
+			//名前が空欄ではない場合
+			if (!$user_name == NULL) {
+				$user_info->name = $user_name;
+			}
+			//新規パスワードが空欄ではない場合
+			if (!$request->new_password == NULL) {
+				$user_info->password = $new_password;
+			}
+			$user_info->save();
 			session()->flash('flash_message', 'パスワードを変更しました');
 			return redirect(url()->previous());
 		}
 
 		return view('edit_user_account.receive_input');
 	}
-	public function receive_email(Request $request, $hash) {
+	public function receive_email(Request $request, $token) {
+		$edit_user_hash = EditUser::where('token', $token);
+		//トークンがDBに存在していなければリダイレクト
+		if ($edit_user_hash->exists()) {
+			//メール送信から30分経った場合無効
+			if (!$edit_user_hash->value('updated_at')->addMinutes(30) < Carbon::now()) {
+				$input_user_data = $edit_user_hash->get();
+				foreach ($input_user_data as $data) {
+					$data->user_id;
+					$data->name;
+					$data->new_password;
+					$data->using_password;
+					$data->email_address;
+				}
+				//メールアドレスが一意になるように制御
+				if (User::where('email', $data->email_address)->exists()) {
+					return redirect(route('home'));
+				}
+				$user_info = User::find($data->user_id);
+				$user_update_data = User::where('id', $data->user_id)->get();
+				foreach ($user_update_data as $user_update) {
+					$user_update->name;
+					$user_update->password;
+					$user_update->email;
+				}
+				if (!$data->name == NULL) {
+					$user_info->name = $data->name;
+				}
+				if (!$data->new_password == NULL) {
+					$user_info->password = $data->new_password;
+				}
+				if (!$data->email_address == NULL) {
+					$user_info->email = $data->email_address;
+				}
+				$user_info->save();
+				return redirect(route('home'));
+			} else {
+				//	return redirect(route('home'));
+			}
+		} else {
+			return redirect(route('home'));
+		}
 		$user = new User();
-		dd($hash);
 	}
 }
