@@ -128,6 +128,11 @@ return [
 		'address'=>'都道府県以下の住所',
 		'phone'=>'電話番号',
 		'customer_name'=>'利用者名',
+		'user_name'=>'登録者名',
+		'user_email'=>'登録メールアドレス',
+		'new_password'=>'新規パスワード',
+		'confirm_password'=>'確認パスワード',
+		'using_password'=>'現在パスワード',
 	],
 
 ];
