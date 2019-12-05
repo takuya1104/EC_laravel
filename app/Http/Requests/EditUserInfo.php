@@ -24,16 +24,7 @@ class EditUserInfo extends FormRequest
 	public function rules()
 	{
 		return [
-			'user_name' => [
-				'nullable',
-				'string',
-				'max:191',
-				function ($attribute, $value, $fail) {
-					if (!preg_match("/^[ぁ-んァ-ヶー一-龠ａ-ｚＡ-Ｚa-zA-Z\s]+$/u", $value)) {
-						return $fail('記号は使用できません');
-					}
-				}
-		],
+			'user_name' => 'nullable|string|max:191|regex:/^[a-zA-Z0-9]+$/',
 			'user_email' => 'required|email|max:191',
 			'new_password' => 'min:8|string|nullable',
 			'confirm_password' => 'min:8|string|nullable|same:new_password',
