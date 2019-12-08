@@ -24,6 +24,7 @@ use Carbon\Carbon;
 
 class EditUserAccountController extends Controller
 {
+
 	/*
 	 * 入力画面
 	 */
@@ -36,7 +37,6 @@ class EditUserAccountController extends Controller
 	 */
 
 	public function receive_input(EditUserInfo $request) {
-
 		if (!Auth::check()) {
 			return redirect(url()->previous());
 		}
@@ -51,8 +51,22 @@ class EditUserAccountController extends Controller
 		$token = substr(base_convert(bin2hex(openssl_random_pseudo_bytes(100)),16,36),0,100);
 		$user_name = $request->user_name;
 		$email_address = $request->user_email;
-		$new_password = Hash::make($request->new_password);
+		$new_password = $request->new_password;
+		//NULLではない場合ハッシュ化
+		if (!$new_password == NULL) {
+			$new_password = Hash::make($new_password);
+		}
 		$using_password = Hash::make($request->using_password);
+		//新規のパスワード内容と既存のパスワードの変更がない場合リダイレクト
+		if (Hash::check($request->new_password, Auth::user()->password)) {
+			session()->flash('flash_message', 'パスワードの変更がありません');
+			return redirect(url()->previous());
+		}
+		//名前の変更がない場合
+		if ($request->user_name == Auth::user()->name) {
+			session()->flash('flash_message', '現在使用中の名前からの変更がありません');
+			return redirect(url()->previous());
+		}
 		//ログインユーザーのアドレスと入力されたアドレスが同じか照合
 		if (Auth::user()->email !== $email_address) {
 			//メールアドレスの重複を確認
@@ -91,19 +105,24 @@ class EditUserAccountController extends Controller
 				$user_info->password = $new_password;
 			}
 			$user_info->save();
-			session()->flash('flash_message', 'パスワードを変更しました');
+			session()->flash('flash_message', '登録情報を変更しました');
 			return redirect(url()->previous());
 		}
 
 		return view('edit_user_account.receive_input');
 	}
-	public function receive_email(Request $request, $token) {
-		$edit_user_hash = EditUser::where('token', $token);
+
+	/*
+	 * 情報更新
+	 */
+
+	public function receive_email(EditUserInfo $request, $token) {
+		$edit_user_token = EditUser::where('token', $token);
 		//トークンがDBに存在していなければリダイレクト
-		if ($edit_user_hash->exists()) {
-			//メール送信から30分経った場合無効
-			if (!$edit_user_hash->value('updated_at')->addMinutes(30) < Carbon::now()) {
-				$input_user_data = $edit_user_hash->get();
+		if ($edit_user_token->exists()) {
+			//メール送信から30分経過してるか確認
+			if (!$edit_user_token->value('updated_at')->addMinutes(30) < Carbon::now()) {
+				$input_user_data = $edit_user_token->get();
 				foreach ($input_user_data as $data) {
 					$data->user_id;
 					$data->name;
@@ -113,8 +132,10 @@ class EditUserAccountController extends Controller
 				}
 				//メールアドレスが一意になるように制御
 				if (User::where('email', $data->email_address)->exists()) {
+					session()->flash('flash_message', 'そのメールアドレスは使用できません');
 					return redirect(route('home'));
 				}
+				//ユーザー情報取得
 				$user_info = User::find($data->user_id);
 				$user_update_data = User::where('id', $data->user_id)->get();
 				foreach ($user_update_data as $user_update) {
@@ -122,23 +143,28 @@ class EditUserAccountController extends Controller
 					$user_update->password;
 					$user_update->email;
 				}
+				//名前の変更がない場合
 				if (!$data->name == NULL) {
 					$user_info->name = $data->name;
 				}
+				//パスの変更がない場合
 				if (!$data->new_password == NULL) {
 					$user_info->password = $data->new_password;
 				}
+				//アドレスの変更がない場合
 				if (!$data->email_address == NULL) {
 					$user_info->email = $data->email_address;
 				}
 				$user_info->save();
+				session()->flash('flash_message', '登録情報を変更しました');
 				return redirect(route('home'));
 			} else {
-				//	return redirect(route('home'));
+				session()->flash('flash_message', '30分経過しているので無効なURLです');
+				return redirect(route('home'));
 			}
 		} else {
+			session()->flash('flash_message', '不正なアクセスです');
 			return redirect(route('home'));
 		}
-		$user = new User();
 	}
 }

@@ -24,10 +24,10 @@ class EditUserInfo extends FormRequest
 	public function rules()
 	{
 		return [
-			'user_name' => 'nullable|string|max:191|regex:/^[a-zA-Z0-9]+$/',
+			'user_name' => 'nullable|string|max:191',
 			'user_email' => 'required|email|max:191',
-			'new_password' => 'min:8|string|nullable',
-			'confirm_password' => 'min:8|string|nullable|same:new_password',
+			'new_password' => 'min:8|string|nullable|regex:/^[a-zA-Z0-9]+$/',
+			'confirm_password' => 'min:8|string|nullable|same:new_password|regex:/^[a-zA-Z0-9]+$/',
 			'using_password' => 'required|string',
 		];
 	}
