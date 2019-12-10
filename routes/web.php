@@ -37,7 +37,7 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 });
 
 //ユーザー情報編集
-Route::group(['prefix' => 'edit_user_account', 'middleware' => 'auth'], function() {
+Route::group(['prefix' => '/edit_user_account', 'middleware' => 'auth'], function() {
 	//ユーザー情報更新画面作成
 	Route::get('{id}', 'EditUserAccountController@index')->name('edit_user_account');
 	//ユーザー情報挿入

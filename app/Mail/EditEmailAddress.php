@@ -12,7 +12,6 @@ class EditEmailAddress extends Mailable
 	use Queueable, SerializesModels;
 
 	protected $url;
-	protected $title;
 	/**
 	 * Create a new message instance.
 	 *

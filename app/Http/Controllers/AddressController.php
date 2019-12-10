@@ -7,12 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CreateAddress;
 use App\Providers\Validator;
 use App\User;
-use App\Item;
-use App\Admin;
-use App\Cart;
 use App\Address;
 use App\Prefecture;
-use GuzzleHttp\Client;
 
 
 class AddressController extends Controller
