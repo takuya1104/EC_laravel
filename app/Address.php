@@ -16,6 +16,7 @@ class Address extends Model
 		$del_blank  = preg_replace("/( |　)/", "", $string );
 		return $del_blank;
 	}
+
 	public function prefecture()
 	{
 		return $this->belongsTo(Prefecture::class, 'prefecture_id', 'id');

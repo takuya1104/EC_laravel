@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Notifications\CustomResetPassword;
 
 class User extends Authenticatable
 {
@@ -33,8 +32,13 @@ class User extends Authenticatable
 		return $this->hasMany(Item::class);
 	}
 
-	public function sendPasswordResetNotification($token)
+	Public function address()
 	{
-		$this->notify(new CustomResetPassword($token));
+		return $this->hasMany(Address::class);
+	}
+
+	Public function add()
+	{
+		return $this->hasManyThrough(Prefecture::class, Address::class, 'user_id', 'prefecture_id', 'id', 'id');
 	}
 }

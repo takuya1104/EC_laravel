@@ -11,6 +11,7 @@
 </head>
 <body>
 @if(Auth::guard('admin')->check())
+<a href="{{ route('member.index') }}">会員一覧</a><br>
 <a href="{{ route('admin_item.add') }}">商品追加</a><br>
 <a href="{{ route('admin_item.logout') }}">ログアウト</a>
 @endif

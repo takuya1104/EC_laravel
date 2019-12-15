@@ -70,6 +70,8 @@ Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {
 	Route::get('/home', function () { return redirect('/admin/item'); });
 	Route::post('logout', 'Admin\LoginController@logout')->name('admin.logout');
+	Route::get('/member/', 'MemberController@index')->name('member.index');
+	Route::get('/member/detail/{id}', 'MemberController@detail')->name('member.detail');
 });
 
 //adminログイン後リダレクト後
@@ -94,8 +96,8 @@ Route::group(['prefix' => 'admin/item', 'middleware' => 'auth:admin'], function(
 
 
 // ログインURL
-Route::get('auth/twitter', 'Auth\TwitterController@login');
+Route::get('auth/twitter', 'Auth\TwitterController@login')->name('twitter.login');
 // コールバックURL
 Route::get('auth/twitter/callback', 'Auth\TwitterController@callback');
 // ログアウトURL
-Route::get('auth/twitter/logout', 'Auth\TwitterController@logout');
+Route::get('auth/twitter/logout', 'Auth\TwitterController@logout')->name('twitter.logout');
