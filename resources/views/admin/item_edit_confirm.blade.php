@@ -9,8 +9,8 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-
 <h1>確認画面</h1>
+<a href="{{ route ('admin_item.edit', ['id' => $id]) }}">編集画面に戻る</a>
 <form method="POST" action="{{ route('admin_item.regist',['id'=>$id]) }}">
 {{ csrf_field() }}
 <h3>商品名</h3>
@@ -19,4 +19,11 @@
 <p>{{ $item_description }}</p>
 <h3>商品在庫</h3>
 <p>{{ $item_stock }}</p>
+<h3>画像登録</h3>
+@if (!is_null($item_file_name))
+<td><img src="{{ asset('storage') . '/' . $item_file_name }}" style="width:140px"></td>
+@else
+<td>画像登録なし</td>
+@endif
+<br>
 <input type="submit" value="登録">

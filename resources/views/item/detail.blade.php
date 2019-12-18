@@ -33,11 +33,17 @@ td,th{
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>
+<th>画像</th>
 <th>追加</th>
 <tr>
 <td>{{ $item->item_name }}</a></td>
 <td>{{ $item->description }}</td>
 <td>{{ $item->price }}</td>
+@if ($item->file_name)
+<td><img src="{{ asset('storage') . '/' . $item->file_name }}" style="width:140px"></td>
+@else
+<td>画像がありません</td>
+@endif
 <!-- ログイン確認 -->
 @if (Auth::check())
 <!-- 在庫確認 -->
