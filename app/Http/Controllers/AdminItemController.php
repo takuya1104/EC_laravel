@@ -95,18 +95,19 @@ class AdminItemController extends Controller
 		$stock = $request->session()->get('stock');
 		$file_name = $request->session()->get('file_name');
 
-		$item = Item::findOrFail($id);
-		$item->item_name = $name;
-		$item->description = $description;
-		$item->stock = $stock;
-		$item->file_name = $file_name;
-
 		//削除フラグが立っていて新しい画像が登録された時　データベースから登録済みのファイル名を取得・削除
 		$registered_file_name = Item::where('id', $id)->value('file_name');
 		if ($file_name !== $registered_file_name) {
 			Storage::delete('public/' . $registered_file_name);
 		}
+
+		$item = Item::findOrFail($id);
+		$item->item_name = $name;
+		$item->description = $description;
+		$item->stock = $stock;
+		$item->file_name = $file_name;
 		$item->save();
+
 		$request->session()->forget('name');
 		$request->session()->forget('description');
 		$request->session()->forget('stock');
