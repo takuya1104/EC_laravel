@@ -29,6 +29,7 @@ class AdminItemController extends Controller
 	public function edit(Request $request, $id) {
 		$data_item = Item::findOrFail($id);
 
+		//確認画面から編集画面に戻った際にファイル名セッションが残っていて且つ、DBに登録されている画像と異なる場合削除
 		$session_file_name = $request->session()->get('file_name');
 		$registered_file_name = Item::where('id', $id)->value('file_name');
 		if ($session_file_name !== NULL && $registered_file_name !== $session_file_name) {
@@ -48,24 +49,31 @@ class AdminItemController extends Controller
 			'item_name' => 'required|max:255',
 			'item_description' => 'required',
 			'item_stock' => 'required|numeric|max:999999999|integer',
+			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:8000',
 		]);
 
-		if ($item_del == 'on' && $item_file == NULL) {
-			session()->flash('flash_message', '削除する画像がありません');
-			return redirect(url()->previous());
-		}
-
-		//ファイルが選択されていれば、削除チェックが有効でも画像更新
-		//削除ボタンが有効で且つファイルが選択されていなければ画像ファイルはNULL
-		//画像に更新が何もなければ、DBから既存で登録されているファイル名を取得
+		//ファイルが選択されている場合
 		if (!is_null($item_file)) {
+			if ($item_del == 'on' ) {
+				session()->flash('flash_message', '削除チェックが有効になっています');
+				return redirect(url()->previous());
+			}
+			//拡張子取得
 			$extension = $request->file('item_file')->getClientOriginalExtension();
+			//一意になるファイル名取得
 			$item_file_name = md5(uniqid(rand(),1)) . '.' . $extension;
 			$request->file('item_file')->storeAs('public', $item_file_name);
 		} else {
-			if ($item_del == 'on') {
+			if ($item_del == 'on' ) {
+				//削除チェックが有効で且つファイル名がDBに保存されていない場合
+				if (Item::where('id', $id)->value('file_name') == NULL) {
+					session()->flash('flash_message', '削除する画像がありません');
+					return redirect(url()->previous());
+				}
+				//削除チェックが有効な場合ファイル名はNULL
 				$item_file_name = NULL;
 				$request->session()->put('file_name', $item_file_name);
+				//画像更新なしの場合はファイル名取得
 			} else {
 				$item_file_name = Item::where('id', $id)->value('file_name');
 			}
@@ -93,7 +101,7 @@ class AdminItemController extends Controller
 		$item->stock = $stock;
 		$item->file_name = $file_name;
 
-		//削除フラグが立っていて新しい画像が登録された時　データベースから取得削除
+		//削除フラグが立っていて新しい画像が登録された時　データベースから登録済みのファイル名を取得・削除
 		$registered_file_name = Item::where('id', $id)->value('file_name');
 		if ($file_name !== $registered_file_name) {
 			Storage::delete('public/' . $registered_file_name);
@@ -117,12 +125,15 @@ class AdminItemController extends Controller
 			'item_description' => 'required',
 			'item_price' => 'required|numeric|max:999999999|integer|min:1',
 			'item_stock' => 'required|numeric|max:999999999|integer',
-			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:3000',
+			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:8000',
 		]);
+		//拡張子取得
 		$extension = $request->file('item_file')->getClientOriginalExtension();
+		//一意になるファイル名取得
 		$new_file_name = md5(uniqid(rand(),1)) . '.' . $extension;
-
+		//画像保存
 		$request->file('item_file')->storeAs('public', $new_file_name);
+
 		$item = new Item;
 		$item->item_name = $request->item_name;
 		$item->description = $request->item_description;
