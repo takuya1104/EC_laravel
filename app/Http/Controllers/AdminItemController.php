@@ -48,7 +48,7 @@ class AdminItemController extends Controller
 		$request->validate([
 			'item_name' => 'required|max:255',
 			'item_description' => 'required',
-			'item_stock' => 'required|numeric|max:999999999|integer',
+			'item_stock' => 'required|numeric|max:999999999|integer|min:0',
 			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:8000',
 		]);
 
@@ -125,7 +125,7 @@ class AdminItemController extends Controller
 			'item_name' => 'required|max:255',
 			'item_description' => 'required',
 			'item_price' => 'required|numeric|max:999999999|integer|min:1',
-			'item_stock' => 'required|numeric|max:999999999|integer',
+			'item_stock' => 'required|numeric|max:999999999|integer|min:0',
 			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:8000',
 		]);
 		//拡張子取得
