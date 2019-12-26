@@ -26,12 +26,13 @@
 <p>商品在庫</p>
 <input id="item_stock" name="item_stock" value="{{ $data_item->stock }}"  required autofocus><br>
 {{ $errors->first('item_stock') }}
-<p>画像登録</p>
+<p>新規画像登録</p>
 <input id="item_stock" name="item_file" value="{{ $data_item->stock }}" type="file"><br>
-<input type="checkbox" name="file_del">画像を削除する
+{{ $errors->first('item_file') }}
 @if (!is_null($data_item->file_name))
 <p>登録中画像</p>
 <img src="{{ asset('storage') . '/' . $data_item->file_name }}" style="width:140px">
+<input type="checkbox" name="file_del">画像を削除する<br>
 @else
 <p>画像登録なし</p>
 @endif

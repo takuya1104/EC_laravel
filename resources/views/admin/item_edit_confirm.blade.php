@@ -9,6 +9,7 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+
 <h1>確認画面</h1>
 <a href="{{ route ('admin_item.edit', ['id' => $id]) }}">編集画面に戻る</a>
 <form method="POST" action="{{ route('admin_item.regist',['id'=>$id]) }}">

@@ -65,6 +65,11 @@ Route::group(['prefix' => '/address', 'middleware' => ['web']], function () {
 
 //カート追加
 Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
+//決済処理
+Route::group(['prefix' => '/settlement', 'middleware' => 'auth'], function() {
+	//決済情報取得
+	Route::post('/', 'SettlementController@index')->name('settlement.index');
+});
 
 //adminログイン後
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {

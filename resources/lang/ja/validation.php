@@ -122,6 +122,7 @@ return [
 		'item_description'=>'商品説明',
 		'item_price'=>'商品価格',
 		'item_stock'=>'商品在庫数',
+		'item_file'=>'商品画像',
 		'postal_code1'=>'郵便番号前半',
 		'postal_code2'=>'郵便番号後半',
 		'pref'=>'都道府県',

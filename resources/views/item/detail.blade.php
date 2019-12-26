@@ -56,8 +56,6 @@ td,th{
 @else
 <td>在庫なし</td>
 @endif
-@else
-<td>ログインしてください</td>
 @endif
 </tr>
 </table>
