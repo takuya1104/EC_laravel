@@ -29,6 +29,7 @@ td,th{
 <th>商品説明</th>
 <th>価格</th>
 <th>在庫</th>
+<th>画像</th>
 @if(Auth::guard('admin')->check())
 <th>編集</th>
 @endif
@@ -40,6 +41,11 @@ td,th{
 <td>在庫有り</td>
 @else
 <td>在庫なし</td>
+@endif
+@if ($item->file_name)
+<td><img src="{{ asset('storage') . '/' . $item->file_name }}" style="width:140px"></td>
+@else
+<td>画像登録なし</td>
 @endif
 @if(Auth::guard('admin')->check())
 <td><a href="{{ route ('admin_item.edit', ['id' => $item->id]) }}">編集</a></td>

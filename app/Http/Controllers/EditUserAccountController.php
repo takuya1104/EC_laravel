@@ -4,21 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Mail\Mailer;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\EditEmailAddress;
 use App\Http\Requests\EditUserInfo;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\URL;
-use App\Providers\Validator;
 use App\User;
-use App\Item;
-use App\Admin;
-use App\Cart;
-use App\Address;
-use App\Prefecture;
 use App\EditUser;
-use GuzzleHttp\Client;
 use Hash;
 use Carbon\Carbon;
 
@@ -57,16 +47,19 @@ class EditUserAccountController extends Controller
 			$new_password = Hash::make($new_password);
 		}
 		$using_password = Hash::make($request->using_password);
+
 		//新規のパスワード内容と既存のパスワードの変更がない場合リダイレクト
 		if (Hash::check($request->new_password, Auth::user()->password)) {
 			session()->flash('flash_message', 'パスワードの変更がありません');
 			return redirect(url()->previous());
 		}
+
 		//名前の変更がない場合
 		if ($request->user_name == Auth::user()->name) {
 			session()->flash('flash_message', '現在使用中の名前からの変更がありません');
 			return redirect(url()->previous());
 		}
+
 		//ログインユーザーのアドレスと入力されたアドレスが同じか照合
 		if (Auth::user()->email !== $email_address) {
 			//メールアドレスの重複を確認
@@ -88,7 +81,6 @@ class EditUserAccountController extends Controller
 			//メール送信
 			Mail::to($email_address)->send(new EditEmailAddress($url));
 			session()->flash('flash_message', '確認用メールを送信しました');
-			return redirect(url()->previous());
 		} else {
 			//名前新規パスの入力がない場合
 			if ($request->new_password == NULL && $user_name == NULL) {
@@ -106,65 +98,48 @@ class EditUserAccountController extends Controller
 			}
 			$user_info->save();
 			session()->flash('flash_message', '登録情報を変更しました');
-			return redirect(url()->previous());
 		}
-
-		return view('edit_user_account.receive_input');
+		return redirect('home');
 	}
 
 	/*
-	 * 情報更新
+	 * メール受け取り情報更新
 	 */
 
-	public function receive_email(EditUserInfo $request, $token) {
+	public function receive_email(Request $request, $token) {
 		$edit_user_token = EditUser::where('token', $token);
 		//トークンがDBに存在していなければリダイレクト
 		if ($edit_user_token->exists()) {
 			//メール送信から30分経過してるか確認
 			if (!$edit_user_token->value('updated_at')->addMinutes(30) < Carbon::now()) {
-				$input_user_data = $edit_user_token->get();
-				foreach ($input_user_data as $data) {
-					$data->user_id;
-					$data->name;
-					$data->new_password;
-					$data->using_password;
-					$data->email_address;
-				}
+				//変更内容
+				$input_user_data = $edit_user_token->first();
 				//メールアドレスが一意になるように制御
-				if (User::where('email', $data->email_address)->exists()) {
+				if (User::where('email', $input_user_data->email_address)->exists()) {
 					session()->flash('flash_message', 'そのメールアドレスは使用できません');
 					return redirect(route('home'));
 				}
 				//ユーザー情報取得
-				$user_info = User::find($data->user_id);
-				$user_update_data = User::where('id', $data->user_id)->get();
-				foreach ($user_update_data as $user_update) {
-					$user_update->name;
-					$user_update->password;
-					$user_update->email;
-				}
+				$user_info = User::find($input_user_data->user_id);
+
 				//名前の変更がない場合
-				if (!$data->name == NULL) {
-					$user_info->name = $data->name;
+				if (!$input_user_data->name == NULL) {
+					$user_info->name = $input_user_data->name;
 				}
+
 				//パスの変更がない場合
-				if (!$data->new_password == NULL) {
-					$user_info->password = $data->new_password;
+				if (!$input_user_data->new_password == NULL) {
+					$user_info->password = $input_user_data->new_password;
 				}
-				//アドレスの変更がない場合
-				if (!$data->email_address == NULL) {
-					$user_info->email = $data->email_address;
-				}
+				$user_info->email = $input_user_data->email_address;
 				$user_info->save();
 				session()->flash('flash_message', '登録情報を変更しました');
-				return redirect(route('home'));
 			} else {
 				session()->flash('flash_message', '30分経過しているので無効なURLです');
-				return redirect(route('home'));
 			}
 		} else {
 			session()->flash('flash_message', '不正なアクセスです');
-			return redirect(route('home'));
 		}
+		return redirect(route('home'));
 	}
 }

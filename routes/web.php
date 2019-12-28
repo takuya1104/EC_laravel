@@ -34,14 +34,19 @@ Route::group(['prefix' => '/', 'middleware' => 'auth'], function() {
 	Route::get('logout', 'CartController@logout')->name('logout');
 	//削除処理
 	Route::delete('cart', 'CartController@delete')->name('cart.delete');
-	//ユーザー情報編集
-	Route::get('edit_user_account/{id}', 'EditUserAccountController@index')->name('edit_user_account');
-	Route::post('edit_user_account/receive_input', 'EditUserAccountController@receive_input')->name('edit_user_account.receive_input');
-	Route::get('edit_user_account/receive_email/{token}', 'EditUserAccountController@receive_email')->name('edit_user_account.receive_email');
+});
+
+//ユーザー情報編集
+Route::group(['prefix' => '/edit_user_account', 'middleware' => 'auth'], function() {
+	//ユーザー情報更新画面作成
+	Route::get('{id}', 'EditUserAccountController@index')->name('edit_user_account');
+	//ユーザー情報挿入
+	Route::post('receive_input', 'EditUserAccountController@receive_input')->name('edit_user_account.receive_input');
+	//メール受け取り
+	Route::get('receive_email/{token}', 'EditUserAccountController@receive_email')->name('edit_user_account.receive_email');
 });
 
 //住所追加編集削除
-
 Route::group(['prefix' => '/address', 'middleware' => 'auth'], function() {
 	Route::get('/{id}', 'AddressController@index')->name('address.index');
 	//住所確認画面
@@ -60,11 +65,20 @@ Route::group(['prefix' => '/address', 'middleware' => ['web']], function () {
 
 //カート追加
 Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
+//決済処理
+Route::group(['prefix' => '/settlement', 'middleware' => 'auth'], function() {
+	//決済情報取得
+	Route::get('/', 'SettlementController@index')->name('settlement.index');
+	//ペイメント
+	Route::post('/', 'SettlementController@payment')->name('settlement.payment');
+});
 
 //adminログイン後
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {
 	Route::get('/home', function () { return redirect('/admin/item'); });
 	Route::post('logout', 'Admin\LoginController@logout')->name('admin.logout');
+	Route::get('/member/', 'MemberController@index')->name('member.index');
+	Route::get('/member/detail/{id}', 'MemberController@detail')->name('member.detail');
 });
 
 //adminログイン後リダレクト後
@@ -89,8 +103,8 @@ Route::group(['prefix' => 'admin/item', 'middleware' => 'auth:admin'], function(
 
 
 // ログインURL
-Route::get('auth/twitter', 'Auth\TwitterController@login');
+Route::get('auth/twitter', 'Auth\TwitterController@login')->name('twitter.login');
 // コールバックURL
 Route::get('auth/twitter/callback', 'Auth\TwitterController@callback');
 // ログアウトURL
-Route::get('auth/twitter/logout', 'Auth\TwitterController@logout');
+Route::get('auth/twitter/logout', 'Auth\TwitterController@logout')->name('twitter.logout');
