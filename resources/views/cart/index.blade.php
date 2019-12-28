@@ -17,6 +17,7 @@
 @endif
 <a href="{{ route('item.index') }}">ホームへ戻る</a>
 <a href="{{ route('address.confirm', ['id' => Auth::id()]) }}">住所選択画面</a>
+<a href="{{ route('settlement.index') }}">決済画面へ</a>
 <!-- カートの中身確認 -->
 @if ($items_in_carts->isEmpty())
 <p><?php echo "カートが空です"; ?></p>

@@ -68,7 +68,9 @@ Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
 //決済処理
 Route::group(['prefix' => '/settlement', 'middleware' => 'auth'], function() {
 	//決済情報取得
-	Route::post('/', 'SettlementController@index')->name('settlement.index');
+	Route::get('/', 'SettlementController@index')->name('settlement.index');
+	//ペイメント
+	Route::post('/', 'SettlementController@payment')->name('settlement.payment');
 });
 
 //adminログイン後
