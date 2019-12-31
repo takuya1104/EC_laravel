@@ -18,6 +18,7 @@ class SettlementController extends Controller
 {
 	//
 	public function index(Request $request) {
+		//各種登録情報取得
 		$registered_address = Address::with('prefecture')->where('user_id', Auth::id())->get();
 		$items_in_carts = Cart::with('item')->where('customer_id', Auth::id())->get();
 		$total_price = 0;
@@ -112,8 +113,8 @@ class SettlementController extends Controller
 			['stripe_id' => $charge->id,
 			'card_brand' => $charge->source->brand,
 			'card_last_four' => $charge->source->last4
-		]
-	);
+			]
+		);
 
 		//決済テーブルへデータをインサート
 		$settlement = new Settlement();
@@ -128,8 +129,6 @@ class SettlementController extends Controller
 		$settlement->failure_code = $charge->failure_code;
 		$settlement->failure_message = $charge->failure_message;
 		$settlement->status_code = $status_code;
-		//今後クーポン設定をする場合設定
-		//$settlement->ends_at = ?;
 		$settlement->save();
 
 		//確認画面へ行く

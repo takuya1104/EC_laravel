@@ -65,11 +65,12 @@ Route::group(['prefix' => '/address', 'middleware' => ['web']], function () {
 
 //カート追加
 Route::post('add_item', 'CartController@addItem')->name('cart.add_item');
+
 //決済処理
 Route::group(['prefix' => '/settlement', 'middleware' => 'auth'], function() {
 	//決済情報取得
 	Route::get('/', 'SettlementController@index')->name('settlement.index');
-	//ペイメント
+	//決済ペイメント
 	Route::post('/', 'SettlementController@payment')->name('settlement.payment');
 });
 
