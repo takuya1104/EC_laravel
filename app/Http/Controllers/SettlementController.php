@@ -89,8 +89,7 @@ class SettlementController extends Controller
 			session()->flash('flash_message', '決済が完了しました');
 		} catch (\Stripe\Exception\CardException $e) {
 			//エラー内容を取得して、ログに表示
-			$body = $e->getJsonBody();
-			Log::debug($body);
+			Log::error($e->getJsonBody());
 			session()->flash('flash_message', '決済ができませんでした。');
 			return redirect(url()->previous());
 		}
@@ -105,6 +104,12 @@ class SettlementController extends Controller
 		//カート内のアイテムを削除
 		Cart::where('customer_id', Auth::id())->delete();
 
+		if (is_null(Settlement::find(1))) {
+			$settlement_id = 1;
+		} else {
+			$settlement_id = Settlement::latest()->first()->id + 1;
+		}
+
 		DB::beginTransaction();
 		try {
 			//購入品テーブルにデータを挿入
@@ -113,7 +118,7 @@ class SettlementController extends Controller
 				$purchase->user_id = Auth::id();
 				$purchase->item_id = $cart->item_id;
 				$purchase->item_amount = $cart->item_amount;
-				$purchase->settlement_id = Settlement::latest()->first()->id + 1;
+				$purchase->settlement_id = $settlement_id;
 				$purchase->save();
 			}
 
@@ -142,8 +147,10 @@ class SettlementController extends Controller
 			$settlement->save();
 			DB::commit();
 		} catch (\PDOException $e) {
+			Log::error('ユーザーID ' . Auth::id() . '決済時ユーザー情報アップデート失敗');
+			Log::error('ストライプID ' . $stripe_token);
+			Log::info($e->getJsonBody());
 			DB::rollBack();
-			Log($e);
 		}
 		//確認画面へ行く
 		return redirect(url()->previous());
