@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use DB;
 use Log;
 use Stripe\Stripe;
 use App\Item;
@@ -16,7 +17,10 @@ use Validator;
 
 class SettlementController extends Controller
 {
-	//
+	/*
+	 *決済画面
+	 */
+
 	public function index(Request $request) {
 		//各種登録情報取得
 		$registered_address = Address::with('prefecture')->where('user_id', Auth::id())->get();
@@ -30,6 +34,10 @@ class SettlementController extends Controller
 		$request->session()->put('session_price',$total_price);
 		return view('settlement.index', compact('registered_address', 'items_in_carts', 'total_price'));
 	}
+
+	/*
+	 *決済処理
+	 */
 
 	public function payment(Request $request) {
 
@@ -60,7 +68,7 @@ class SettlementController extends Controller
 			return redirect(url()->previous());
 		}
 
-		//カート内商品を削除
+		//50円以下の決済はリダイレクト
 		if ($price < 50) {
 			session()->flash('flash_message', '50円以下の決済はできません');
 			return redirect(url()->previous());
@@ -97,40 +105,46 @@ class SettlementController extends Controller
 		//カート内のアイテムを削除
 		Cart::where('customer_id', Auth::id())->delete();
 
-		//購入品テーブルにデータを挿入
-		foreach ($items_in_carts as $cart) {
-			$purchase = new Purchase();
-			$purchase->user_id = Auth::id();
-			$purchase->item_id = $cart->item_id;
-			$purchase->item_amount = $cart->item_amount;
-			$purchase->settlement_id = Settlement::latest()->first()->id + 1;
-			$purchase->save();
+		DB::beginTransaction();
+		try {
+			//購入品テーブルにデータを挿入
+			foreach ($items_in_carts as $cart) {
+				$purchase = new Purchase();
+				$purchase->user_id = Auth::id();
+				$purchase->item_id = $cart->item_id;
+				$purchase->item_amount = $cart->item_amount;
+				$purchase->settlement_id = Settlement::latest()->first()->id + 1;
+				$purchase->save();
+			}
+
+			//ユーザー情報更新
+			User::updateOrCreate(
+				['id' => Auth::id()],
+				['stripe_id' => $charge->id,
+				'card_brand' => $charge->source->brand,
+				'card_last_four' => $charge->source->last4
+				]
+			);
+
+			//決済テーブルへデータをインサート
+			$settlement = new Settlement();
+			$settlement->user_id = Auth::id();
+			$settlement->stripe_id = $charge->id;
+			$settlement->name = $deliver_info->customer_name;
+			$settlement->postal_code = $deliver_info->postal_code;
+			$settlement->prefecture_id = $deliver_info->prefecture_id;
+			$settlement->city = $deliver_info->city;
+			$settlement->phone_number = $deliver_info->phone_number;
+			$settlement->amount = $price;
+			$settlement->failure_code = $charge->failure_code;
+			$settlement->failure_message = $charge->failure_message;
+			$settlement->status_code = $status_code;
+			$settlement->save();
+			DB::commit();
+		} catch (\PDOException $e) {
+			DB::rollBack();
+			Log($e);
 		}
-
-		//ユーザー情報更新
-		User::updateOrCreate(
-			['id' => Auth::id()],
-			['stripe_id' => $charge->id,
-			'card_brand' => $charge->source->brand,
-			'card_last_four' => $charge->source->last4
-			]
-		);
-
-		//決済テーブルへデータをインサート
-		$settlement = new Settlement();
-		$settlement->user_id = Auth::id();
-		$settlement->stripe_id = $charge->id;
-		$settlement->name = $deliver_info->customer_name;
-		$settlement->postal_code = $deliver_info->postal_code;
-		$settlement->prefecture_id = $deliver_info->prefecture_id;
-		$settlement->city = $deliver_info->city;
-		$settlement->phone_number = $deliver_info->phone_number;
-		$settlement->amount = $price;
-		$settlement->failure_code = $charge->failure_code;
-		$settlement->failure_message = $charge->failure_message;
-		$settlement->status_code = $status_code;
-		$settlement->save();
-
 		//確認画面へ行く
 		return redirect(url()->previous());
 	}
