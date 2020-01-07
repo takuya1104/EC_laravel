@@ -147,11 +147,19 @@ class SettlementController extends Controller
 			$settlement->status_code = $status_code;
 			$settlement->save();
 			DB::commit();
-		} catch (\PDOException $e) {
+		} catch (\Exception $e) {
+			//例外発生時返金処理
+			\Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+			$charge = \Stripe\Refund::create([
+				//合計金額
+				'amount' => $price,
+				//該当のstripe_idを取得
+				'charge' => $charge->id,
+			]);
 			Log::error('ユーザーID ' . Auth::id() . '決済時ユーザー情報アップデート失敗');
 			Log::error('ストライプID ' . $stripe_token);
-			Log::info($e->getJsonBody());
 			DB::rollBack();
+			session()->flash('flash_message', 'データの更新ができませんでしたので、返金しました');
 		}
 		//確認画面へ行く
 		return redirect(url()->previous());
@@ -174,7 +182,7 @@ class SettlementController extends Controller
 
 	public function cancel(Request $request) {
 
-		//受け取った番号二つを分離して配列に入れ直す
+		//受け取ったID二つを分離して配列に入れ直す
 		$purchase_explode = explode('.', $request->purchase_id);
 		$id_check = array();
 		foreach ($purchase_explode as $id_info) {
@@ -208,7 +216,6 @@ class SettlementController extends Controller
 		//返金処理
 		try {
 			\Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-			$stripe_token = $request->stripeToken;
 			$charge = \Stripe\Refund::create([
 				//合計金額
 				'amount' => $item_price * $item_amount,
@@ -216,9 +223,10 @@ class SettlementController extends Controller
 				'charge' => $purchased_item->settlement->stripe_id,
 			]);
 			session()->flash('flash_message', '返金処理が完了しました');
-		} catch (\Stripe\Exception\CardException $e) {
+		} catch (\Exception $e) {
 			//エラー内容を取得して、ログに表示
-			Log::error($e->getJsonBody());
+			Log::error('ユーザーID ' . Auth::id() . '返金失敗');
+			Log::error('ストライプID ' . $purchased_item->settlement->stripe_id);
 			session()->flash('flash_message', '返金処理ができませんでした。');
 			return redirect(url()->previous());
 		}
