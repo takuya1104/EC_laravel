@@ -10,14 +10,16 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
-<table>
-<th>会員一覧</th>
+<body class="text-center">
+<table class="table">
+<tr>
+<th class="text-center">会員一覧</th>
+</tr>
 @foreach ($users as $user)
 <tr>
 <td><a href="{{ route('member.detail', ['id' => $user->id])  }}">{{ $user->name  }}</a></td>
-</tr>
 @endforeach
+</tr>
 </table>
 </body>
 </html>

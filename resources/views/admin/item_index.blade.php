@@ -9,7 +9,7 @@
 
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
+<body class="text-center">
 @if(Auth::guard('admin')->check())
 <a href="{{ route('member.index') }}">会員一覧</a><br>
 <a href="{{ route('admin_item.add') }}">商品追加</a><br>
@@ -22,7 +22,7 @@
 {{ session('flash_message') }}
 </div>
 @endif
-<table>
+<table class="table">
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>

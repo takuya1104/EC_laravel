@@ -11,7 +11,7 @@
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
-<table>
+<table class="table">
 <th>ユーザー名</th>
 <th>メールアドレス</th>
 <th>お届け先住所</th>

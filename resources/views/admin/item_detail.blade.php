@@ -23,7 +23,7 @@ td,th{
   padding:10px;
 }
 </style>
-<body>
+<body class="text-center">
 <table>
 <th>商品名</th>
 <th>商品説明</th>

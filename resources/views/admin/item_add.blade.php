@@ -9,7 +9,7 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-
+<body class="text-center">
 <form class="form-horizontal" method="POST" action="{{ route('admin_item.add_confirm') }}" enctype="multipart/form-data">
 {{ csrf_field() }}
 <p>商品名</p>
@@ -25,10 +25,14 @@
 <input id="item_stock" name="item_stock" value="{{ old('item_stock') }}"><br>
 {{ $errors->first('item_stock') }}
 <p>商品画像</p>
-<input type="file" id="item_stock" name="item_file" value="{{ old('item_file') }}"><br>
+<label>
+<span class="btn btn-primary">
+<input type="file" id="item_stock" name="item_file" value="{{ old('item_file') }}" ><br>
 {{ $errors->first('item_file') }}
+</span>
+</label>
 <br>
 <button type="submit" class="btn btn-primary">
 追加
 </button>
-
+<body>

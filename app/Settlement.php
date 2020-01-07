@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Settlement extends Model
 {
 	use SoftDeletes;
-	//都道府県マスターからリレーションで取得
 	public function prefecture()
 	{
 		return $this->belongsTo(Prefecture::class);

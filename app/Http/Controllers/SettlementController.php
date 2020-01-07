@@ -158,6 +158,7 @@ class SettlementController extends Controller
 			]);
 			Log::error('ユーザーID ' . Auth::id() . '決済時ユーザー情報アップデート失敗');
 			Log::error('ストライプID ' . $stripe_token);
+			Log::error($e->getMessage());
 			DB::rollBack();
 			session()->flash('flash_message', 'データの更新ができませんでしたので、返金しました');
 		}
@@ -180,6 +181,10 @@ class SettlementController extends Controller
 		return view('settlement.confirm', compact('purchase_infos'));
 	}
 
+	/*
+	 *決済済み商品キャンセル
+	 */
+
 	public function cancel(Request $request) {
 
 		//受け取ったID二つを分離して配列に入れ直す
@@ -189,7 +194,7 @@ class SettlementController extends Controller
 			$id_replace  = preg_replace("/( |　)/", "", $id_info );
 			array_push($id_check, $id_replace);
 		}
-		$purchased_item = Purchase::with('item')->with('settlement')->where('id', $id_check[0])->first();
+		$purchased_item = Purchase::with('item')->with('settlement')->where('user_id', Auth::id())->where('id', $id_check[0])->first();
 
 		//存在しない商品の場合リダイレクト
 		if (is_null($purchased_item)) {
@@ -224,9 +229,10 @@ class SettlementController extends Controller
 			]);
 			session()->flash('flash_message', '返金処理が完了しました');
 		} catch (\Exception $e) {
-			//エラー内容を取得して、ログに表示
+			//エラーユーザーを取得して、ログに表示
 			Log::error('ユーザーID ' . Auth::id() . '返金失敗');
 			Log::error('ストライプID ' . $purchased_item->settlement->stripe_id);
+			Log::error($e->getMessage());
 			session()->flash('flash_message', '返金処理ができませんでした。');
 			return redirect(url()->previous());
 		}
