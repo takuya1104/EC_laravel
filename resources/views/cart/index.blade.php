@@ -8,7 +8,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
+<body class="text-center">
 <!-- フラッシュメッセージ -->
 @if (session('flash_message'))
 <div class="flash_message bg-success text-center py-3 my-0">
@@ -18,11 +18,12 @@
 <a href="{{ route('item.index') }}">ホームへ戻る</a>
 <a href="{{ route('address.confirm', ['id' => Auth::id()]) }}">住所選択画面</a>
 <a href="{{ route('settlement.index') }}">決済画面へ</a>
+<a href="{{ route('settlement.confirm', ['id' => Auth::id()]) }}">決済履歴</a>
 <!-- カートの中身確認 -->
 @if ($items_in_carts->isEmpty())
 <p><?php echo "カートが空です"; ?></p>
 @else
-<table>
+<table class="table">
 <th>商品名</th>
 <th>価格</th>
 <th>数量</th>

@@ -10,6 +10,7 @@
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 {{-- フラッシュメッセージ --}}
+<body class="text-center">
 @if (session('flash_message'))
 <div class="flash_message bg-danger text-center py-3 my-0">
 {{ session('flash_message') }}
@@ -45,4 +46,4 @@
 <button type="submit" class="btn btn-primary">
 変更
 </button>
-
+</body>

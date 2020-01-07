@@ -72,6 +72,10 @@ Route::group(['prefix' => '/settlement', 'middleware' => 'auth'], function() {
 	Route::get('/', 'SettlementController@index')->name('settlement.index');
 	//決済ペイメント
 	Route::post('/', 'SettlementController@payment')->name('settlement.payment');
+	//決済キャンセル
+	Route::post('cancel', 'SettlementController@cancel')->name('settlement.cancel');
+	//決済キャンセル
+	Route::get('confirm/{id}', 'SettlementController@confirm')->name('settlement.confirm');
 });
 
 //adminログイン後

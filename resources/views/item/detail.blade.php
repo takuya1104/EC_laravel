@@ -29,7 +29,7 @@ td,th{
 {{ session('flash_message') }}
 </div>
 @endif
-<table>
+<table class="table">
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>

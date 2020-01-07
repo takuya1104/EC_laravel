@@ -9,6 +9,7 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+<body class="text-center">
 @if (session('flash_message'))
 <div class="flash_message bg-danger text-center py-3 my-0">
 {{ session('flash_message') }}
@@ -17,24 +18,32 @@
 
 <a href="{{ route('cart.index', ['id' => Auth::id()]) }}">カートの中身を見る</a>
 <a href="{{ route('address.confirm', ['id' => Auth::id()]) }}">住所選択画面</a>
+<a href="{{ route('settlement.confirm', ['id' => Auth::id()]) }}">決済履歴</a>
+<div class="center-block">
 <form action="{{ route('settlement.payment') }}" method="POST">
 {{ csrf_field() }}
-<table>
-<span>氏名</span>
-<span>郵便番号</span>
-<span>都道府県</span>
-<span>それ以下の住所</span>
-<span>電話番号</span>
 @if (!$registered_address->isEmpty())
-@foreach ($registered_address as $address)
+<table class="table">
+<thead>
 <tr>
-<td>{{ $address->customer_name }}<td>
-<td>{{ $address->postal_code }}<td>
-<td>{{ $address->prefecture->pref_name }}<td>
-<td>{{ $address->city }}<td>
-<td>{{ $address->phone_number }}<td>
+<th>氏名</th>
+<th>郵便番号</th>
+<th>都道府県</th>
+<th>それ以下の住所</th>
+<th>電話番号</th>
+</tr>
+</thead>
+@foreach ($registered_address as $address)
+<tbody>
+<tr>
+<td>{{ $address->customer_name }}</td>
+<td>{{ $address->postal_code }}</td>
+<td>{{ $address->prefecture->pref_name }}</td>
+<td>{{ $address->city }}</td>
+<td>{{ $address->phone_number }}</td>
 <td><input type="checkbox" name="deliver_address[]" value="{{ $address->id }}"><td>
 </tr>
+</tbody>
 @endforeach
 </table>
 @else
@@ -42,18 +51,19 @@
 @endif
 
 @if (!$items_in_carts->isEmpty())
-<table>
-<span>商品名</span>
-<span>個数</span>
-<span>金額</span>
+<table class="table">
+<th>商品名</th>
+<th>個数</th>
+<th>金額</th>
 @foreach ($items_in_carts as $cart)
 <tr>
-<td>{{ $cart->item->item_name }}<td>
-<td>&nbsp;&nbsp;{{ $cart->item_amount }}<td>
-<td>&nbsp;&nbsp;{{ $cart->item->price }}<td>
+<td>{{ $cart->item->item_name }}</td>
+<td>{{ $cart->item_amount }}</td>
+<td>{{ $cart->item->price }}</td>
 </tr>
 @endforeach
 </table>
+</body>
 <script
 src="https://checkout.stripe.com/checkout.js" class="stripe-button"
 data-key="{{ env('STRIPE_KEY') }}"
@@ -69,4 +79,8 @@ data-currency="JPY">
 @else
 <p>カートに商品がありません</p>
 @endif
+</form>
+<form class="form-horizontal" method="POST" action="{{ route('settlement.cancel') }}">
+{{ csrf_field() }}
+<input type="hidden" value="{{ Auth::id() }}" name="user_id">
 </form>

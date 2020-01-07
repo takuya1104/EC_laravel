@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use DB;
 use Log;
+use Carbon\Carbon;
 use Stripe\Stripe;
 use App\Item;
 use App\Address;
@@ -153,6 +154,76 @@ class SettlementController extends Controller
 			DB::rollBack();
 		}
 		//確認画面へ行く
+		return redirect(url()->previous());
+	}
+
+	/*
+	 *決済済み商品
+	 */
+
+	public function confirm(Request $request, $id) {
+		//GETのIDとログインIDが異なる場合リダイレクト
+		if (Auth::id() != $id) {
+			return redirect(url()->route('home'));
+		}
+
+		//中間テーブルを通って、購入商品情報, 都道府県名取得
+		$purchase_infos = Settlement::with('prefecture')->with('getItems')->where('user_id', $id)->get();
+		return view('settlement.confirm', compact('purchase_infos'));
+	}
+
+	public function cancel(Request $request) {
+
+		//受け取った番号二つを分離して配列に入れ直す
+		$purchase_explode = explode('.', $request->purchase_id);
+		$id_check = array();
+		foreach ($purchase_explode as $id_info) {
+			$id_replace  = preg_replace("/( |　)/", "", $id_info );
+			array_push($id_check, $id_replace);
+		}
+		$purchased_item = Purchase::with('item')->with('settlement')->where('id', $id_check[0])->first();
+
+		//存在しない商品の場合リダイレクト
+		if (is_null($purchased_item)) {
+			session()->flash('flash_message', '存在しない商品です');
+			return redirect(url()->previous());
+		}
+
+		//決済情報テーブルのIDが違う場合リダイレクト
+		if ($purchased_item->settlement->id != $id_check[1]) {
+			session()->flash('flash_message', '決済番号が違います');
+			return redirect(url()->previous());
+		}
+
+		//時刻取得 配送中の場合はリダイレクト
+		if (Carbon::parse($purchased_item->settlement->created_at)->addDays(2) < Carbon::today()) {
+			session()->flash('flash_message', '配送済みの為キャンセルできません');
+			return redirect(url()->previous());
+		}
+
+		//購入数
+		$item_amount = $purchased_item->item_amount;
+		//購入金額
+		$item_price = $purchased_item->item->price;
+		//返金処理
+		try {
+			\Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+			$stripe_token = $request->stripeToken;
+			$charge = \Stripe\Refund::create([
+				//合計金額
+				'amount' => $item_price * $item_amount,
+				//該当のstripe_idを取得
+				'charge' => $purchased_item->settlement->stripe_id,
+			]);
+			session()->flash('flash_message', '返金処理が完了しました');
+		} catch (\Stripe\Exception\CardException $e) {
+			//エラー内容を取得して、ログに表示
+			Log::error($e->getJsonBody());
+			session()->flash('flash_message', '返金処理ができませんでした。');
+			return redirect(url()->previous());
+		}
+		//中間テーブルから返金した内容のものを削除
+		Purchase::where('id', $request->purchase_id)->delete();
 		return redirect(url()->previous());
 	}
 }

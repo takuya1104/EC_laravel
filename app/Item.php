@@ -22,4 +22,9 @@ class Item extends Model
 	{
 		return $this->hasMany(Cart::class);
 	}
+
+	public function p()
+	{
+		return $this->hasOne(Purchase::class);
+	}
 }

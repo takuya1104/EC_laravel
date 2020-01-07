@@ -15,7 +15,7 @@ class User extends Authenticatable
 	 * @var array
 	 */
 	protected $fillable = [
-		'name', 'email', 'password', 'stripe_id', 'card_brand', 'card_last_four'
+		'name', 'email', 'password', 'stripe_id', 'card_brand', 'card_last_four', 'twitter_id', 'token', 'token_secret'
 	];
 
 	/**
@@ -41,4 +41,6 @@ class User extends Authenticatable
 	{
 		return $this->hasManyThrough(Prefecture::class, Address::class, 'user_id', 'prefecture_id', 'id', 'id');
 	}
+
+
 }

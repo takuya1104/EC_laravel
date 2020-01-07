@@ -9,12 +9,12 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+<body class="text-center">
 @if (session('flash_message'))
 <div class="flash_message bg-danger text-center py-3 my-0">
 {{ session('flash_message') }}
 </div>
 @endif
-
 <form class="form-horizontal" method="POST" action="{{ route('address.add') }}">
 {{ csrf_field() }}
 <p>利用者名</p>

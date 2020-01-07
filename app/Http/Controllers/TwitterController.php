@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Socialite;
 use Auth;
+use App\User;
 
 class TwitterController extends Controller
 {
@@ -21,23 +22,23 @@ class TwitterController extends Controller
 		} catch (\Exception $e) {
 			return redirect('auth/twitter');
 		}
-		// 各自ログイン処理
-		// $user = User::where('auth_id', $twitterUser->id)->first();
-		// if (!$user) {
-		//     $user = User::create([
-		//         'auth_id' => $twitterUser->id
-		//   ]);
-		// }
-		//Auth::login($user);
+		$user = User::where('twitter_id', $twitterUser->id)->first();
+		if (!$user) {
+			$user = User::create([
+				'twitter_id' => $twitterUser->id,
+				'name' => $twitterUser->name,
+				'token' => $twitterUser->token,
+				'token_secret' => $twitterUser->tokenSecret,
+			]);
+		}
+		Auth::login($user);
 		return redirect('/');
 	}
 
 	// ログアウト
 	public function logout(Request $request)
 	{
-		// 各自ログアウト処理
-		// 例
-		// Auth::logout();
+		Auth::logout();
 		return redirect('/');
 	}
 }

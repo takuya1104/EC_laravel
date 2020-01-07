@@ -11,32 +11,35 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
-<body>
+<body class="text-center">
 @if(Auth::check())
 <a href="{{ route('cart.index', ['id' => Auth::id()]) }}">カートの中身を見る</a></br>
 <a href="{{ route('logout') }}">ログアウト</a>
 @else
 <a href="{{ route('home') }}">ログイン画面</a>
 @endif
-<table>
+<table class="table">
+<tr>
 <th>商品名</th>
 <th>商品説明</th>
 <th>価格</th>
 <th>在庫</th>
+</tr>
 @foreach ($items as $item)
 <tr>
 <td><a href ="{{ route('item.detail', ['id' => $item->id]) }}">{{ $item->item_name }}</a></td>
-<td>&nbsp;{{ $item->description }}</td>
-<td>&nbsp;{{ $item->price }}</td>
+<td>{{ $item->description }}</td>
+<td>{{ $item->price }}</td>
 @if ($item->stock > 0)
-<td>&nbsp;在庫有り</td>
+<td>在庫有り</td>
 @else
-<td>&nbsp;在庫なし</td>
+<td>在庫なし</td>
 @endif
 </tr>
 @endforeach
 </table>
 {{ $items->links() }}
+<div>
 </body>
 </html>
 
