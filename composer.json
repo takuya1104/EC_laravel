@@ -9,6 +9,7 @@
         "doctrine/dbal": "2.*",
         "fideloper/proxy": "~3.3",
         "guzzlehttp/guzzle": "^6.3",
+        "intervention/image": "^2.5",
         "laravel/framework": "5.5.*",
         "laravel/socialite": "~2.0.0",
         "laravel/tinker": "~1.0",

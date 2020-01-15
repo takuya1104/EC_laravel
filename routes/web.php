@@ -84,6 +84,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth:admin'], function() {
 	Route::post('logout', 'Admin\LoginController@logout')->name('admin.logout');
 	Route::get('/member/', 'MemberController@index')->name('member.index');
 	Route::get('/member/detail/{id}', 'MemberController@detail')->name('member.detail');
+	Route::post('/member/status', 'MemberController@status')->name('member.status');
 });
 
 //adminログイン後リダレクト後

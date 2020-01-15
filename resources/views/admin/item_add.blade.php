@@ -16,7 +16,7 @@
 <input id="item_name" name="item_name" value="{{ old('item_name') }}"><br>
 {{ $errors->first('item_name') }}
 <p>商品説明</p>
-<input id="item_description" name="item_description" value="{{ old('item_description') }}"><br>
+<textarea rows="10" cols="30" id="item_description" name="item_description" value="{{ old('item_description') }}">{{ old('item_description') }}</textarea><br>
 {{ $errors->first('item_description') }}
 <p>商品価格</p>
 <input id="item_description" name="item_price" value="{{ old('item_price') }}"><br>
