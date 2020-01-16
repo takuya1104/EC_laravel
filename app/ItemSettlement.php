@@ -5,7 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Purchase extends Model
+class ItemSettlement extends Model
 {
 	use SoftDeletes;
 	protected $fillable = [
@@ -24,9 +24,5 @@ class Purchase extends Model
 	public function address()
 	{
 		return $this->hasManyThrough(Prefecture::class, Settlement::class, 'prefecture_id', 'id', null, 'prefecture_id');
-	}
-	public function test()
-	{
-		return $this->belongsTo(Settlement::class);
 	}
 }

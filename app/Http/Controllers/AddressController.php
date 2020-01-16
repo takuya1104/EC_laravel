@@ -88,6 +88,7 @@ class AddressController extends Controller
 			'phone_number' => $phone_number
 		]);
 		//データ送信後リダイレクト
+		session()->flash('flash_message', '住所の追加・変更をしました');
 		return redirect()->route('address.confirm', ['id' => $user_id]);
 	}
 

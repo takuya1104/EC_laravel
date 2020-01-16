@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Item;
 use App\Admin;
 use Validator;
+use Image;
+
 class AdminItemController extends Controller
 {
 
@@ -62,7 +64,7 @@ class AdminItemController extends Controller
 			$extension = $request->file('item_file')->getClientOriginalExtension();
 			//一意になるファイル名取得
 			$item_file_name = md5(uniqid(rand(),1)) . '.' . $extension;
-			$request->file('item_file')->storeAs('public', $item_file_name);
+			Image::make($request->file('item_file'))->resize(462, 462)->save(public_path('/storage/' . $item_file_name));
 		} else {
 			if ($item_del == 'on' ) {
 				//削除チェックが有効で且つファイル名がDBに保存されていない場合
@@ -128,12 +130,16 @@ class AdminItemController extends Controller
 			'item_stock' => 'required|numeric|max:999999999|integer|min:0',
 			'item_file' => 'file|image|mimes:jpeg,png,jpg,gif|max:8000',
 		]);
+
+		$new_file_name = NULL;
 		//拡張子取得
-		$extension = $request->file('item_file')->getClientOriginalExtension();
-		//一意になるファイル名取得
-		$new_file_name = md5(uniqid(rand(),1)) . '.' . $extension;
-		//画像保存
-		$request->file('item_file')->storeAs('public', $new_file_name);
+		if (!is_null($request->item_file)) {
+			$extension = $request->file('item_file')->getClientOriginalExtension();
+			//一意になるファイル名取得
+			$new_file_name = md5(uniqid(rand(),1)) . '.' . $extension;
+			//画像保存
+			$request->file('item_file')->storeAs('public', $new_file_name);
+		}
 
 		$item = new Item;
 		$item->item_name = $request->item_name;

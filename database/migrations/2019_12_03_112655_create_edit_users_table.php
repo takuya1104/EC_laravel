@@ -16,8 +16,8 @@ class CreateEditUsersTable extends Migration
         Schema::create('edit_users', function (Blueprint $table) {
             $table->integer('user_id');
             $table->string('name');
-            $table->string('new_password');
-            $table->string('using_password');
+            $table->string('new_password')->nullable();
+            $table->string('using_password')->nullable();
             $table->string('email_address');
             $table->text('token');
             $table->timestamps();

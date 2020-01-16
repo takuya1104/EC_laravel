@@ -13,6 +13,7 @@ use App\Address;
 use App\Cart;
 use App\User;
 use App\Settlement;
+use App\ItemSettlement;
 use App\Purchase;
 use Validator;
 
@@ -113,14 +114,14 @@ class SettlementController extends Controller
 
 		DB::beginTransaction();
 		try {
-			//購入品テーブルにデータを挿入
+			//購入品中間テーブルにデータを挿入
 			foreach ($items_in_carts as $cart) {
-				$purchase = new Purchase();
-				$purchase->user_id = Auth::id();
-				$purchase->item_id = $cart->item_id;
-				$purchase->item_amount = $cart->item_amount;
-				$purchase->settlement_id = $settlement_id;
-				$purchase->save();
+				DB::table('item_settlement')->insert([
+					'user_id' =>  Auth::id(),
+					'item_id' => $cart->item_id,
+					'item_amount' => $cart->item_amount,
+					'settlement_id' => $settlement_id,
+				]);
 			}
 
 			//ユーザー情報更新
@@ -177,7 +178,8 @@ class SettlementController extends Controller
 		}
 
 		//中間テーブルを通って、購入商品情報, 都道府県名取得
-		$purchase_infos = Settlement::with('prefecture')->with('getItems')->where('user_id', $id)->get();
+		$purchase_infos = Settlement::with('getPurchases')->with('prefecture')->where('user_id', $id)->get();
+		//dd($purchase_infos);
 		return view('settlement.confirm', compact('purchase_infos'));
 	}
 
@@ -194,30 +196,32 @@ class SettlementController extends Controller
 			$id_replace  = preg_replace("/( |　)/", "", $id_info );
 			array_push($id_check, $id_replace);
 		}
-		$purchased_item = Purchase::with('item')->with('settlement')->where('user_id', Auth::id())->where('id', $id_check[0])->first();
+		$purchase_infos = Settlement::with('getPurchases')->where('id', $id_check[1])->where('user_id', Auth::id())->first();
 
 		//存在しない商品の場合リダイレクト
-		if (is_null($purchased_item)) {
-			session()->flash('flash_message', '存在しない商品です');
-			return redirect(url()->previous());
-		}
-
-		//決済情報テーブルのIDが違う場合リダイレクト
-		if ($purchased_item->settlement->id != $id_check[1]) {
-			session()->flash('flash_message', '決済番号が違います');
+		if (is_null($purchase_infos)) {
+			session()->flash('flash_message', '存在しない購入商品です');
 			return redirect(url()->previous());
 		}
 
 		//時刻取得 配送中の場合はリダイレクト
-		if (Carbon::parse($purchased_item->settlement->created_at)->addDays(2) < Carbon::today()) {
-			session()->flash('flash_message', '配送済みの為キャンセルできません');
-			return redirect(url()->previous());
+		//status_id
+		foreach ($purchase_infos->getPurchases as $purchase_info) {
+			if ($purchase_info->id == $id_check[0]) {
+				if ($purchase_info->pivot->status_id == '2') {
+					session()->flash('flash_message', '配送済みの商品です');
+					return redirect(url()->previous());
+				} elseif ($purchase_info->pivot->status_id == '1') {
+					session()->flash('flash_message', '配送中の商品です');
+					return redirect(url()->previous());
+				} else {
+					$item_price = $purchase_info->price;
+					$item_amount = $purchase_info->pivot->item_amount;
+					$pivot_id = $purchase_info->pivot->id;
+				}
+			}
 		}
 
-		//購入数
-		$item_amount = $purchased_item->item_amount;
-		//購入金額
-		$item_price = $purchased_item->item->price;
 		//返金処理
 		try {
 			\Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
@@ -225,19 +229,19 @@ class SettlementController extends Controller
 				//合計金額
 				'amount' => $item_price * $item_amount,
 				//該当のstripe_idを取得
-				'charge' => $purchased_item->settlement->stripe_id,
+				'charge' => $purchase_infos->stripe_id,
 			]);
 			session()->flash('flash_message', '返金処理が完了しました');
 		} catch (\Exception $e) {
 			//エラーユーザーを取得して、ログに表示
 			Log::error('ユーザーID ' . Auth::id() . '返金失敗');
-			Log::error('ストライプID ' . $purchased_item->settlement->stripe_id);
+			Log::error('ストライプID ' . $purchase_info->stripe_id);
 			Log::error($e->getMessage());
 			session()->flash('flash_message', '返金処理ができませんでした。');
 			return redirect(url()->previous());
 		}
 		//中間テーブルから返金した内容のものを削除
-		Purchase::where('id', $request->purchase_id)->delete();
+		DB::table('item_settlement')->where('id', $pivot_id)->update(array('status_id' => 1));;
 		return redirect(url()->previous());
 	}
 }

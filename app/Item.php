@@ -23,8 +23,11 @@ class Item extends Model
 		return $this->hasMany(Cart::class);
 	}
 
-	public function p()
+	public function getSettlement()
 	{
-		return $this->hasOne(Purchase::class);
+		return $this->belongsToMany(Settlement::class)
+			->withPivot('id', 'settlement_id')
+			->wherePivot('deleted_at', NULL);
 	}
+
 }

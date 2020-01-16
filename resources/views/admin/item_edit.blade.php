@@ -9,6 +9,7 @@
 {{-- CSS --}}
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
+<body class="text-center">
 @if (session('flash_message'))
 <div class="flash_message bg-success text-center py-3 my-0">
 {{ session('flash_message') }}
@@ -21,12 +22,14 @@
 <input id="item_name" name="item_name" value="{{ $data_item->item_name }}" required autofocus><br>
 {{ $errors->first('item_name') }}
 <p>商品説明</p>
-<input id="item_description" name="item_description" value="{{ $data_item->description }}"  required autofocus><br>
+<textarea id="item_description" name="item_description" required autofocus>{{ $data_item->description }}</textarea><br>
 {{ $errors->first('item_description') }}
 <p>商品在庫</p>
 <input id="item_stock" name="item_stock" value="{{ $data_item->stock }}"  required autofocus><br>
 {{ $errors->first('item_stock') }}
 <p>新規画像登録</p>
+<label>
+<span class="btn btn-primary">
 <input id="item_stock" name="item_file" value="{{ $data_item->stock }}" type="file"><br>
 {{ $errors->first('item_file') }}
 @if (!is_null($data_item->file_name))
@@ -36,8 +39,10 @@
 @else
 <p>画像登録なし</p>
 @endif
+</span>
+</label>
 <br>
 <button type="submit" class="btn btn-primary">
 変更
 </button>
-
+</body>
